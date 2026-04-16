@@ -6,7 +6,6 @@ import {
 } from 'lucide-react';
 import { adminApi } from '@/lib/api';
 import { type AlumniProfile, type AdminStats, type Activity, type Advertisement } from '@/types';
-import { getPhotoUrl } from '@/lib/auth';
 import { getInitials, getPhotoUrl } from '@/lib/auth';
 import { toast } from 'sonner';
 
@@ -423,7 +422,7 @@ function SettingsTab({ settings, onRefresh }: { settings: Record<string, unknown
         </div>
         <div>
           <label className="label">School Logo</label>
-          {settings?.logo_url && (
+          {!!(settings?.logo_url) && (
             <img src={settings.logo_url as string} alt="Logo" className="h-16 mb-2 object-contain" />
           )}
           <input type="file" accept="image/*" className="input" onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)} />
