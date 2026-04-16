@@ -135,9 +135,11 @@
 
   /* Page layout */
   .page-bg {
-    background-color: #f5f7ff;
-    background-image: radial-gradient(circle at 1px 1px, rgba(26,39,68,0.06) 1px, transparent 0);
-    background-size: 28px 28px;
+    background-color: #f6f8ff;
+    background-image: url('/page-bg.svg');
+    background-size: cover;
+    background-position: top center;
+    background-attachment: fixed;
   }
   .page-header {
     background: linear-gradient(135deg, #0d1b3e 0%, #1a2744 60%, #1e3a8a 100%);
