@@ -197,8 +197,8 @@ router.get('/smtp', authenticate, requireAdmin, async (req, res) => {
       smtp_pass:   row.smtp_pass_set ? '••••••••' : '',
     });
   } catch (err) {
-    console.error('SMTP get error:', err);
-    res.status(500).json({ error: 'Failed to fetch SMTP settings' });
+    console.error('SMTP get error:', err.message);
+    res.status(500).json({ error: err.message || 'Failed to fetch SMTP settings' });
   }
 });
 
@@ -226,8 +226,8 @@ router.put('/smtp', authenticate, requireAdmin, async (req, res) => {
     }
     res.json({ message: 'SMTP settings saved' });
   } catch (err) {
-    console.error('SMTP save error:', err);
-    res.status(500).json({ error: 'Failed to save SMTP settings' });
+    console.error('SMTP save error:', err.message);
+    res.status(500).json({ error: err.message || 'Failed to save SMTP settings' });
   }
 });
 
@@ -306,7 +306,8 @@ router.get('/birthday-template', authenticate, requireAdmin, async (req, res) =>
       body:    row.birthday_body    || DEFAULT_BIRTHDAY_BODY,
     });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch birthday template' });
+    console.error('Birthday template get error:', err.message);
+    res.status(500).json({ error: err.message || 'Failed to fetch birthday template' });
   }
 });
 
@@ -321,7 +322,8 @@ router.put('/birthday-template', authenticate, requireAdmin, async (req, res) =>
     );
     res.json({ message: 'Birthday template saved' });
   } catch (err) {
-    res.status(500).json({ error: 'Failed to save birthday template' });
+    console.error('Birthday template save error:', err.message);
+    res.status(500).json({ error: err.message || 'Failed to save birthday template' });
   }
 });
 
