@@ -54,9 +54,10 @@ router.get('/', authenticate, async (req, res) => {
 
     params.push(limit, offset);
     const result = await pool.query(
-      `SELECT a.*, ap.first_name, ap.last_name, ap.profile_photo_url
+      `SELECT a.*, ap.first_name, ap.last_name, ap.profile_photo_url, u.email AS poster_email
        FROM advertisements a
        LEFT JOIN alumni_profiles ap ON ap.user_id = a.user_id
+       LEFT JOIN users u ON u.id = a.user_id
        ${where}
        ORDER BY a.approved_at DESC
        LIMIT $${idx} OFFSET $${idx + 1}`,

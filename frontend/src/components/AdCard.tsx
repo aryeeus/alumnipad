@@ -21,8 +21,14 @@ interface Props {
 
 export default function AdCard({ ad, onDelete, showOwner = true }: Props) {
   const categoryClass = ad.category ? (CATEGORY_COLORS[ad.category] ?? 'bg-gray-50 text-gray-600') : '';
-  const posterName = ad.first_name ? `${ad.first_name} ${ad.last_name ?? ''}`.trim() : 'Alumni';
-  const posterInitials = ad.first_name ? getInitials(ad.first_name, ad.last_name ?? '') : '?';
+  const posterName = ad.first_name
+    ? `${ad.first_name} ${ad.last_name ?? ''}`.trim()
+    : ad.poster_email
+      ? ad.poster_email.split('@')[0]
+      : 'Alumni';
+  const posterInitials = ad.first_name
+    ? getInitials(ad.first_name, ad.last_name ?? '')
+    : (posterName[0] ?? '?').toUpperCase();
 
   return (
     <div className="card overflow-hidden flex flex-col group">

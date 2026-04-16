@@ -198,7 +198,7 @@ export default function AlumniProfile() {
 
           {/* ── Horizontal badge strip ── */}
           {(p.graduation_year || p.house || p.program || p.is_mentor_available || p.is_speaker_available) && (
-            <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
+            <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2 justify-center">
               {p.graduation_year && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold bg-blue-700 text-white shadow-sm">
                   <GraduationCap className="h-4 w-4" /> Class of '{String(p.graduation_year).slice(-2)}

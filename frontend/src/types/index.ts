@@ -156,6 +156,7 @@ export interface Advertisement {
   last_name?: string;
   profile_photo_url?: string;
   email?: string;
+  poster_email?: string;
 }
 
 export interface PaginatedResponse<T> {
