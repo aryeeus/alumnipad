@@ -3,19 +3,9 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const nodemailer = require('nodemailer');
 const pool = require('../config/db');
 const { authenticate, requireAdmin } = require('../middleware/auth');
-
-function getMailer() {
-  if (!process.env.SMTP_HOST) return null;
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-}
+const { getMailer } = require('../utils/mailer');
 
 const logoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -69,13 +59,14 @@ router.post('/approve/:userId', authenticate, requireAdmin, async (req, res) => 
     );
 
     // Send approval email (fire-and-forget — don't block the response)
-    const mailer = getMailer();
-    if (mailer && email) {
+    getMailer().then((mailerObj) => {
+      if (!mailerObj || !email) return;
+      const { transport, from } = mailerObj;
       const displayName = first_name ? `${first_name} ${last_name ?? ''}`.trim() : email;
       const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/login`;
 
-      mailer.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      transport.sendMail({
+        from,
         to: email,
         subject: 'Your AlumniPad Registration Has Been Approved!',
         html: `
@@ -109,7 +100,7 @@ router.post('/approve/:userId', authenticate, requireAdmin, async (req, res) => 
           </div>
         `,
       }).catch((err) => console.error('Approval email error:', err));
-    }
+    }).catch((err) => console.error('Mailer init error:', err));
 
     res.json({ message: 'User approved' });
   } catch (err) {
@@ -183,6 +174,154 @@ router.put('/settings', authenticate, requireAdmin, uploadLogo.single('logo'), a
   } catch (err) {
     console.error('Settings update error:', err);
     res.status(500).json({ error: 'Failed to update settings' });
+  }
+});
+
+// ── SMTP Settings ──────────────────────────────────────────────────────────
+
+// GET /api/admin/smtp — returns settings with password masked
+router.get('/smtp', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT smtp_host, smtp_port, smtp_user, smtp_from, smtp_secure,
+              (smtp_pass IS NOT NULL AND smtp_pass <> '') AS smtp_pass_set
+       FROM portal_settings LIMIT 1`
+    );
+    const row = result.rows[0] || {};
+    res.json({
+      smtp_host:   row.smtp_host   || '',
+      smtp_port:   row.smtp_port   || 587,
+      smtp_user:   row.smtp_user   || '',
+      smtp_from:   row.smtp_from   || '',
+      smtp_secure: !!row.smtp_secure,
+      smtp_pass:   row.smtp_pass_set ? '••••••••' : '',
+    });
+  } catch (err) {
+    console.error('SMTP get error:', err);
+    res.status(500).json({ error: 'Failed to fetch SMTP settings' });
+  }
+});
+
+// PUT /api/admin/smtp — update SMTP settings
+router.put('/smtp', authenticate, requireAdmin, async (req, res) => {
+  const { smtp_host, smtp_port, smtp_user, smtp_pass, smtp_from, smtp_secure } = req.body;
+  try {
+    // Only update password if a new one was provided (not the masked placeholder)
+    if (smtp_pass && smtp_pass !== '••••••••') {
+      await pool.query(
+        `UPDATE portal_settings SET
+           smtp_host=$1, smtp_port=$2, smtp_user=$3, smtp_pass=$4,
+           smtp_from=$5, smtp_secure=$6, updated_at=NOW()`,
+        [smtp_host||null, smtp_port||587, smtp_user||null, smtp_pass,
+         smtp_from||null, !!smtp_secure]
+      );
+    } else {
+      await pool.query(
+        `UPDATE portal_settings SET
+           smtp_host=$1, smtp_port=$2, smtp_user=$3,
+           smtp_from=$4, smtp_secure=$5, updated_at=NOW()`,
+        [smtp_host||null, smtp_port||587, smtp_user||null,
+         smtp_from||null, !!smtp_secure]
+      );
+    }
+    res.json({ message: 'SMTP settings saved' });
+  } catch (err) {
+    console.error('SMTP save error:', err);
+    res.status(500).json({ error: 'Failed to save SMTP settings' });
+  }
+});
+
+// POST /api/admin/smtp/test — send a test email to the requesting admin
+router.post('/smtp/test', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const mailerObj = await getMailer();
+    if (!mailerObj) return res.status(400).json({ error: 'No SMTP settings configured' });
+    const { transport, from } = mailerObj;
+
+    // Get admin email
+    const userResult = await pool.query('SELECT email FROM users WHERE id=$1', [req.user.id]);
+    const adminEmail = userResult.rows[0]?.email;
+    if (!adminEmail) return res.status(400).json({ error: 'Could not determine admin email' });
+
+    await transport.sendMail({
+      from,
+      to: adminEmail,
+      subject: 'AlumniPad — SMTP Test Email ✅',
+      html: `<div style="font-family:Inter,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+        <div style="background:#1a2744;border-radius:12px;padding:20px;text-align:center;margin-bottom:20px">
+          <h1 style="color:#facc15;margin:0;font-size:20px">AlumniPad</h1>
+        </div>
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:24px">
+          <h2 style="color:#15803d;margin-top:0">✅ SMTP is working!</h2>
+          <p style="color:#374151">Your email configuration is correct. Alumni notifications will be delivered successfully.</p>
+          <p style="color:#6b7280;font-size:13px;margin-bottom:0">Sent from AlumniPad Admin Panel</p>
+        </div>
+      </div>`,
+    });
+    res.json({ message: `Test email sent to ${adminEmail}` });
+  } catch (err) {
+    console.error('SMTP test error:', err);
+    res.status(500).json({ error: err.message || 'Failed to send test email' });
+  }
+});
+
+// ── Birthday Email Template ─────────────────────────────────────────────────
+
+const DEFAULT_BIRTHDAY_SUBJECT = 'Happy Birthday, {{first_name}}! 🎂';
+const DEFAULT_BIRTHDAY_BODY = `<div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#f5f7ff">
+  <div style="background:linear-gradient(135deg,#1a2744,#1e40af);border-radius:16px;padding:32px;text-align:center;margin-bottom:24px">
+    <div style="font-size:48px;margin-bottom:8px">🎂</div>
+    <h1 style="color:#facc15;font-size:26px;margin:0;font-family:Georgia,serif">Happy Birthday!</h1>
+  </div>
+  <div style="background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+    <h2 style="color:#1a2744;margin-top:0">Dear {{first_name}},</h2>
+    <p style="color:#374151;line-height:1.7;font-size:15px">
+      On behalf of the entire {{school_name}} alumni community, we wish you a very happy birthday!
+      May this special day be filled with joy, laughter, and wonderful memories.
+    </p>
+    <p style="color:#374151;line-height:1.7;font-size:15px">
+      Your fellow alumni are celebrating with you today. We are grateful to have you as part of our family.
+    </p>
+    <div style="text-align:center;margin:28px 0">
+      <a href="{{app_url}}"
+         style="background:linear-gradient(135deg,#1e40af,#1a2744);color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">
+        Visit AlumniPad
+      </a>
+    </div>
+    <p style="color:#9ca3af;font-size:13px;margin-bottom:0;text-align:center">
+      With warm wishes from the {{school_name}} alumni community 🎓
+    </p>
+  </div>
+</div>`;
+
+// GET /api/admin/birthday-template
+router.get('/birthday-template', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT birthday_subject, birthday_body FROM portal_settings LIMIT 1'
+    );
+    const row = result.rows[0] || {};
+    res.json({
+      subject: row.birthday_subject || DEFAULT_BIRTHDAY_SUBJECT,
+      body:    row.birthday_body    || DEFAULT_BIRTHDAY_BODY,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch birthday template' });
+  }
+});
+
+// PUT /api/admin/birthday-template
+router.put('/birthday-template', authenticate, requireAdmin, async (req, res) => {
+  const { subject, body } = req.body;
+  if (!subject || !body) return res.status(400).json({ error: 'Subject and body are required' });
+  try {
+    await pool.query(
+      'UPDATE portal_settings SET birthday_subject=$1, birthday_body=$2, updated_at=NOW()',
+      [subject, body]
+    );
+    res.json({ message: 'Birthday template saved' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save birthday template' });
   }
 });
 

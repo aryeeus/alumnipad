@@ -145,6 +145,15 @@ export const adminApi = {
     }),
   deleteAd: (id: string) => request<{ message: string }>(`/admin/ads/${id}`, { method: 'DELETE' }),
   getBirthdays: () => request<unknown[]>('/admin/birthdays'),
+
+  getSmtp: () => request<Record<string, unknown>>('/admin/smtp'),
+  updateSmtp: (data: Record<string, unknown>) =>
+    request<{ message: string }>('/admin/smtp', { method: 'PUT', body: JSON.stringify(data) }),
+  testSmtp: () => request<{ message: string }>('/admin/smtp/test', { method: 'POST' }),
+
+  getBirthdayTemplate: () => request<{ subject: string; body: string }>('/admin/birthday-template'),
+  updateBirthdayTemplate: (data: { subject: string; body: string }) =>
+    request<{ message: string }>('/admin/birthday-template', { method: 'PUT', body: JSON.stringify(data) }),
 };
 
 // Advertisements

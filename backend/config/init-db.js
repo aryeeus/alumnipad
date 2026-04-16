@@ -222,6 +222,19 @@ async function initDb() {
         ADD COLUMN IF NOT EXISTS for_alumni_id UUID REFERENCES users(id) ON DELETE SET NULL;
     `);
 
+    // Migrate: add SMTP settings + birthday template to portal_settings
+    await client.query(`
+      ALTER TABLE portal_settings
+        ADD COLUMN IF NOT EXISTS smtp_host VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS smtp_port INTEGER DEFAULT 587,
+        ADD COLUMN IF NOT EXISTS smtp_user VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS smtp_pass TEXT,
+        ADD COLUMN IF NOT EXISTS smtp_from VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS smtp_secure BOOLEAN DEFAULT false,
+        ADD COLUMN IF NOT EXISTS birthday_subject VARCHAR(500),
+        ADD COLUMN IF NOT EXISTS birthday_body TEXT;
+    `);
+
     // portal_settings
     await client.query(`
       CREATE TABLE IF NOT EXISTS portal_settings (

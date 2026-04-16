@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Users, Clock, Images, BookOpen, Calendar, Check, X, Plus,
-  Trash2, Settings, BarChart3, ShoppingBag, Cake
+  Trash2, Settings, BarChart3, ShoppingBag, Cake, Mail, Eye, EyeOff,
+  Send, RefreshCw
 } from 'lucide-react';
 import { adminApi } from '@/lib/api';
 import { type AlumniProfile, type AdminStats, type Activity, type Advertisement, type BirthdayAlumni } from '@/types';
@@ -456,43 +457,288 @@ function AdsTab({ ads, onRefresh }: { ads: Advertisement[]; onRefresh: () => voi
 }
 
 function SettingsTab({ settings, onRefresh }: { settings: Record<string, unknown>; onRefresh: () => void }) {
+  // ── Portal settings ──
   const [schoolName, setSchoolName] = useState((settings?.school_name as string) ?? '');
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [savingPortal, setSavingPortal] = useState(false);
 
-  const handleSave = async (e: React.FormEvent) => {
+  // ── SMTP settings ──
+  const { data: smtpData, isLoading: smtpLoading, refetch: refetchSmtp } = useQuery({
+    queryKey: ['admin-smtp'],
+    queryFn: adminApi.getSmtp,
+  });
+  const smtp = smtpData as Record<string, unknown> | undefined;
+  const [smtpForm, setSmtpForm] = useState({ smtp_host: '', smtp_port: '587', smtp_user: '', smtp_pass: '', smtp_from: '', smtp_secure: false });
+  const [showPass, setShowPass] = useState(false);
+  const [savingSmtp, setSavingSmtp] = useState(false);
+  const [testingSmtp, setTestingSmtp] = useState(false);
+
+  // Sync SMTP form when data loads
+  useState(() => {
+    if (smtp) setSmtpForm({
+      smtp_host:   (smtp.smtp_host   as string) || '',
+      smtp_port:   String(smtp.smtp_port || 587),
+      smtp_user:   (smtp.smtp_user   as string) || '',
+      smtp_pass:   (smtp.smtp_pass   as string) || '',
+      smtp_from:   (smtp.smtp_from   as string) || '',
+      smtp_secure: !!(smtp.smtp_secure),
+    });
+  });
+
+  // ── Birthday template ──
+  const { data: tplData, isLoading: tplLoading, refetch: refetchTpl } = useQuery({
+    queryKey: ['admin-birthday-template'],
+    queryFn: adminApi.getBirthdayTemplate,
+  });
+  const [tplSubject, setTplSubject] = useState('');
+  const [tplBody, setTplBody] = useState('');
+  const [savingTpl, setSavingTpl] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  useState(() => {
+    if (tplData) {
+      setTplSubject(tplData.subject || '');
+      setTplBody(tplData.body || '');
+    }
+  });
+
+  // Handlers
+  const handlePortalSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaving(true);
+    setSavingPortal(true);
     try {
-      const formData = new FormData();
-      formData.append('school_name', schoolName);
-      if (logoFile) formData.append('logo', logoFile);
-      await adminApi.updateSettings(formData);
-      toast.success('Settings saved');
+      const fd = new FormData();
+      fd.append('school_name', schoolName);
+      if (logoFile) fd.append('logo', logoFile);
+      await adminApi.updateSettings(fd);
+      toast.success('Portal settings saved');
       onRefresh();
-    } catch { toast.error('Failed to save settings'); }
-    finally { setSaving(false); }
+    } catch { toast.error('Failed to save portal settings'); }
+    finally { setSavingPortal(false); }
   };
 
+  const handleSmtpSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSmtp(true);
+    try {
+      await adminApi.updateSmtp({ ...smtpForm, smtp_port: parseInt(smtpForm.smtp_port) || 587 });
+      toast.success('SMTP settings saved');
+      refetchSmtp();
+    } catch { toast.error('Failed to save SMTP settings'); }
+    finally { setSavingSmtp(false); }
+  };
+
+  const handleSmtpTest = async () => {
+    setTestingSmtp(true);
+    try {
+      const res = await adminApi.testSmtp();
+      toast.success(res.message);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Test failed — check your SMTP settings');
+    } finally { setTestingSmtp(false); }
+  };
+
+  const handleTplSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingTpl(true);
+    try {
+      await adminApi.updateBirthdayTemplate({ subject: tplSubject, body: tplBody });
+      toast.success('Birthday template saved');
+      refetchTpl();
+    } catch { toast.error('Failed to save template'); }
+    finally { setSavingTpl(false); }
+  };
+
+  const handleTplReset = () => {
+    if (tplData) { setTplSubject(tplData.subject); setTplBody(tplData.body); }
+  };
+
+  // Merge loaded smtp into form (runs once when data arrives)
+  if (smtp && !smtpForm.smtp_host && smtp.smtp_host) {
+    setSmtpForm({
+      smtp_host:   (smtp.smtp_host   as string) || '',
+      smtp_port:   String(smtp.smtp_port || 587),
+      smtp_user:   (smtp.smtp_user   as string) || '',
+      smtp_pass:   (smtp.smtp_pass   as string) || '',
+      smtp_from:   (smtp.smtp_from   as string) || '',
+      smtp_secure: !!(smtp.smtp_secure),
+    });
+  }
+  if (tplData && !tplSubject && tplData.subject) {
+    setTplSubject(tplData.subject);
+    setTplBody(tplData.body);
+  }
+
+  const SF = ({ label, id, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; id: string }) => (
+    <div>
+      <label className="label" htmlFor={id}>{label}</label>
+      <input id={id} className="input" {...props} />
+    </div>
+  );
+
   return (
-    <div className="card p-6 max-w-lg">
-      <h2 className="font-bold text-gray-900 mb-4">Portal Settings</h2>
-      <form onSubmit={handleSave} className="space-y-4">
-        <div>
-          <label className="label">School Name</label>
-          <input className="input" value={schoolName} onChange={(e) => setSchoolName(e.target.value)} />
+    <div className="space-y-6 max-w-2xl">
+
+      {/* ── Portal Settings ── */}
+      <div className="card p-6">
+        <h2 className="font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <Settings className="h-4 w-4 text-blue-600" /> Portal Settings
+        </h2>
+        <p className="text-xs text-gray-400 mb-4">School name and branding shown across the portal.</p>
+        <form onSubmit={handlePortalSave} className="space-y-4">
+          <SF label="School Name" id="school_name" value={schoolName} onChange={(e) => setSchoolName(e.target.value)} />
+          <div>
+            <label className="label">School Logo</label>
+            {!!(settings?.logo_url) && (
+              <img src={settings.logo_url as string} alt="Logo" className="h-16 mb-2 object-contain" />
+            )}
+            <input type="file" accept="image/*" className="input" onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)} />
+          </div>
+          <button type="submit" disabled={savingPortal} className="btn-primary">
+            {savingPortal ? 'Saving...' : 'Save Portal Settings'}
+          </button>
+        </form>
+      </div>
+
+      {/* ── SMTP / Email Settings ── */}
+      <div className="card p-6">
+        <h2 className="font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <Mail className="h-4 w-4 text-blue-600" /> Email (SMTP) Settings
+        </h2>
+        <p className="text-xs text-gray-400 mb-3">
+          Configure the outgoing mail server for approval and birthday emails.
+          These settings override anything set in the server's <code className="bg-gray-100 px-1 rounded">.env</code> file.
+        </p>
+
+        {/* Gmail App Password notice */}
+        <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4 text-sm">
+          <p className="font-semibold text-amber-800 mb-1">📧 Using a Gmail account?</p>
+          <p className="text-amber-700 leading-relaxed">
+            Gmail requires an <strong>App Password</strong> — your regular password will not work.
+            Go to <strong>Google Account → Security → 2-Step Verification → App Passwords</strong>,
+            create a new app password for "Mail", and paste it in the Password field below.
+          </p>
         </div>
-        <div>
-          <label className="label">School Logo</label>
-          {!!(settings?.logo_url) && (
-            <img src={settings.logo_url as string} alt="Logo" className="h-16 mb-2 object-contain" />
-          )}
-          <input type="file" accept="image/*" className="input" onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)} />
+
+        {smtpLoading ? (
+          <p className="text-gray-400 text-sm">Loading...</p>
+        ) : (
+          <form onSubmit={handleSmtpSave} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <SF label="SMTP Host" id="smtp_host" placeholder="smtp.gmail.com"
+                  value={smtpForm.smtp_host} onChange={(e) => setSmtpForm((f) => ({ ...f, smtp_host: e.target.value }))} />
+              <SF label="Port" id="smtp_port" type="number" placeholder="587"
+                  value={smtpForm.smtp_port} onChange={(e) => setSmtpForm((f) => ({ ...f, smtp_port: e.target.value }))} />
+            </div>
+            <SF label="Username (your email)" id="smtp_user" type="email" placeholder="you@gmail.com"
+                value={smtpForm.smtp_user} onChange={(e) => setSmtpForm((f) => ({ ...f, smtp_user: e.target.value }))} />
+            <div>
+              <label className="label" htmlFor="smtp_pass">
+                Password / App Password
+                {smtp?.smtp_pass === '••••••••' && <span className="ml-2 text-xs text-green-600 font-normal">✓ Configured — enter a new value to change</span>}
+              </label>
+              <div className="relative">
+                <input id="smtp_pass" className="input pr-10"
+                       type={showPass ? 'text' : 'password'}
+                       placeholder={smtp?.smtp_pass === '••••••••' ? '••••••••' : 'Enter App Password'}
+                       value={smtpForm.smtp_pass}
+                       onChange={(e) => setSmtpForm((f) => ({ ...f, smtp_pass: e.target.value }))} />
+                <button type="button" onClick={() => setShowPass((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+            <SF label="From Name / Email (optional)" id="smtp_from" placeholder='AlumniPad <you@gmail.com>'
+                value={smtpForm.smtp_from} onChange={(e) => setSmtpForm((f) => ({ ...f, smtp_from: e.target.value }))} />
+            <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+              <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                     checked={smtpForm.smtp_secure}
+                     onChange={(e) => setSmtpForm((f) => ({ ...f, smtp_secure: e.target.checked }))} />
+              <span className="text-gray-700">Use SSL/TLS (enable for port 465)</span>
+            </label>
+            <div className="flex gap-3 flex-wrap">
+              <button type="submit" disabled={savingSmtp} className="btn-primary">
+                {savingSmtp ? 'Saving...' : 'Save SMTP Settings'}
+              </button>
+              <button type="button" onClick={handleSmtpTest} disabled={testingSmtp}
+                      className="btn-secondary flex items-center gap-2">
+                {testingSmtp ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {testingSmtp ? 'Sending...' : 'Send Test Email'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+
+      {/* ── Birthday Email Template ── */}
+      <div className="card p-6">
+        <h2 className="font-bold text-gray-900 mb-1 flex items-center gap-2">
+          <Cake className="h-4 w-4 text-pink-500" /> Birthday Email Template
+        </h2>
+        <p className="text-xs text-gray-400 mb-3">
+          Customise the email sent automatically to alumni on their birthday at 8:00 AM.
+        </p>
+
+        {/* Variable reference */}
+        <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 text-sm">
+          <p className="font-semibold text-blue-800 mb-1.5">Available template variables</p>
+          <div className="flex flex-wrap gap-2">
+            {['{{first_name}}', '{{last_name}}', '{{school_name}}', '{{year}}', '{{app_url}}'].map((v) => (
+              <code key={v} className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-mono">{v}</code>
+            ))}
+          </div>
+          <p className="text-blue-600 text-xs mt-2">These are replaced with real values when the email is sent.</p>
         </div>
-        <button type="submit" disabled={saving} className="btn-primary">
-          {saving ? 'Saving...' : 'Save Settings'}
-        </button>
-      </form>
+
+        {tplLoading ? (
+          <p className="text-gray-400 text-sm">Loading...</p>
+        ) : (
+          <form onSubmit={handleTplSave} className="space-y-4">
+            <div>
+              <label className="label">Email Subject</label>
+              <input className="input" value={tplSubject}
+                     onChange={(e) => setTplSubject(e.target.value)} required
+                     placeholder="Happy Birthday, {{first_name}}! 🎂" />
+            </div>
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="label mb-0">Email Body (HTML)</label>
+                <button type="button" onClick={() => setShowPreview((v) => !v)}
+                        className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  {showPreview ? 'Hide Preview' : 'Show Preview'}
+                </button>
+              </div>
+              <textarea
+                className="input font-mono text-xs leading-relaxed"
+                rows={14}
+                value={tplBody}
+                onChange={(e) => setTplBody(e.target.value)}
+                required
+                placeholder="<div>...</div>"
+              />
+              {showPreview && (
+                <div className="mt-3 border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="bg-gray-50 border-b border-gray-200 px-3 py-2 text-xs text-gray-500 font-medium">
+                    Preview (variables shown as-is)
+                  </div>
+                  <div className="p-4 max-h-80 overflow-y-auto"
+                       dangerouslySetInnerHTML={{ __html: tplBody }} />
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              <button type="submit" disabled={savingTpl} className="btn-primary">
+                {savingTpl ? 'Saving...' : 'Save Template'}
+              </button>
+              <button type="button" onClick={handleTplReset} className="btn-secondary flex items-center gap-2">
+                <RefreshCw className="h-4 w-4" /> Reload Saved
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
