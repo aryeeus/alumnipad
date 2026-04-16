@@ -144,6 +144,7 @@ export const adminApi = {
       body: JSON.stringify({ reason }),
     }),
   deleteAd: (id: string) => request<{ message: string }>(`/admin/ads/${id}`, { method: 'DELETE' }),
+  getBirthdays: () => request<unknown[]>('/admin/birthdays'),
 };
 
 // Advertisements

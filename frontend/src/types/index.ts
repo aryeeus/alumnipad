@@ -60,6 +60,10 @@ export interface AlumniProfile {
   business_email?: string;
   business_address?: string;
   business_logo_url?: string;
+  business_industry?: string;
+  business_location?: string;
+  business_social?: string;
+  business_services?: string;
   mentorship_areas?: string;
   career_guidance_available?: boolean;
   emergency_contact_name?: string;
@@ -120,6 +124,16 @@ export interface Activity {
   location?: string;
   event_type?: string;
   created_at: string;
+}
+
+export interface BirthdayAlumni {
+  user_id: string;
+  email: string;
+  first_name: string;
+  last_name?: string;
+  profile_photo_url?: string;
+  date_of_birth: string;
+  days_until: number;
 }
 
 export interface Advertisement {

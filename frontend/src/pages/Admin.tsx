@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Users, Clock, Images, BookOpen, Calendar, Check, X, Plus,
-  Trash2, Settings, BarChart3, ShoppingBag
+  Trash2, Settings, BarChart3, ShoppingBag, Cake
 } from 'lucide-react';
 import { adminApi } from '@/lib/api';
-import { type AlumniProfile, type AdminStats, type Activity, type Advertisement } from '@/types';
+import { type AlumniProfile, type AdminStats, type Activity, type Advertisement, type BirthdayAlumni } from '@/types';
 import { getInitials, getPhotoUrl } from '@/lib/auth';
 import { toast } from 'sonner';
 
@@ -32,6 +32,13 @@ export default function Admin() {
     queryFn: adminApi.getAds,
     enabled: activeTab === 'ads',
   });
+
+  const { data: birthdaysData } = useQuery({
+    queryKey: ['admin-birthdays'],
+    queryFn: adminApi.getBirthdays,
+    enabled: activeTab === 'overview',
+    staleTime: 60 * 60 * 1000,
+  });
   const { data: settings } = useQuery({
     queryKey: ['admin-settings'],
     queryFn: adminApi.getSettings,
@@ -42,6 +49,7 @@ export default function Admin() {
   const pendingList = (pending ?? []) as AlumniProfile[];
   const activitiesList = (activities ?? []) as Activity[];
   const adsList = (allAds ?? []) as Advertisement[];
+  const birthdays = (birthdaysData ?? []) as BirthdayAlumni[];
 
   const approve = async (userId: string) => {
     try {
@@ -124,6 +132,55 @@ export default function Admin() {
                   </button>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Birthdays */}
+          {birthdays.length > 0 && (
+            <div className="card p-5">
+              <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Cake className="h-5 w-5 text-pink-500" />
+                Upcoming Birthdays
+                <span className="ml-auto text-xs text-gray-400 font-normal">Next 7 days</span>
+              </h2>
+              <div className="space-y-3">
+                {birthdays.map((b) => {
+                  const isToday = b.days_until === 0;
+                  const name = `${b.first_name} ${b.last_name ?? ''}`.trim();
+                  const bday = new Date(b.date_of_birth).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+                  return (
+                    <div key={b.user_id}
+                         className={`flex items-center gap-3 p-3 rounded-xl ${isToday ? 'bg-pink-50 border border-pink-200' : 'bg-gray-50'}`}>
+                      {b.profile_photo_url ? (
+                        <img src={getPhotoUrl(b.profile_photo_url)} className="h-10 w-10 rounded-full object-cover flex-shrink-0" alt={name} />
+                      ) : (
+                        <div className="h-10 w-10 rounded-full flex-shrink-0 flex items-center justify-center text-white text-sm font-bold"
+                             style={{ background: 'linear-gradient(135deg,#1a2744,#1e40af)' }}>
+                          {getInitials(b.first_name, b.last_name)}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 truncate">{name}</p>
+                        <p className="text-xs text-gray-500">{bday}</p>
+                      </div>
+                      <div className="flex-shrink-0 text-right">
+                        {isToday ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-pink-500 text-white text-xs font-bold">
+                            🎂 Today!
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400 font-medium">in {b.days_until} day{b.days_until !== 1 ? 's' : ''}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {birthdays.some((b) => b.days_until === 0) && (
+                <p className="text-xs text-pink-600 mt-3 bg-pink-50 rounded-lg px-3 py-2">
+                  🎉 Birthday emails are sent automatically at 8:00 AM on each alumnus's birthday.
+                </p>
+              )}
             </div>
           )}
         </div>

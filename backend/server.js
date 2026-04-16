@@ -2,7 +2,86 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const nodemailer = require('nodemailer');
 const pool = require('./config/db');
+
+// ── Birthday email scheduler ────────────────────────────────────
+function getMailer() {
+  if (!process.env.SMTP_HOST) return null;
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  });
+}
+
+async function sendBirthdayEmails() {
+  const mailer = getMailer();
+  if (!mailer) return;
+  try {
+    const result = await pool.query(`
+      SELECT u.email, ap.first_name, ap.last_name
+      FROM alumni_profiles ap
+      JOIN users u ON u.id = ap.user_id
+      WHERE u.is_approved = true AND u.is_admin = false AND ap.date_of_birth IS NOT NULL
+        AND TO_CHAR(ap.date_of_birth, 'MM-DD') = TO_CHAR(CURRENT_DATE, 'MM-DD')
+    `);
+    for (const alumni of result.rows) {
+      const name = `${alumni.first_name} ${alumni.last_name ?? ''}`.trim();
+      mailer.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: alumni.email,
+        subject: `Happy Birthday, ${alumni.first_name}! 🎂`,
+        html: `
+          <div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#f5f7ff">
+            <div style="background:linear-gradient(135deg,#1a2744,#1e40af);border-radius:16px;padding:32px;text-align:center;margin-bottom:24px">
+              <div style="font-size:48px;margin-bottom:8px">🎂</div>
+              <h1 style="color:#facc15;font-size:26px;margin:0;font-family:Georgia,serif">Happy Birthday!</h1>
+            </div>
+            <div style="background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+              <h2 style="color:#1a2744;margin-top:0">Dear ${name},</h2>
+              <p style="color:#374151;line-height:1.7;font-size:15px">
+                On behalf of the entire alumni community, we wish you a very happy birthday!
+                May this special day be filled with joy, laughter, and wonderful memories.
+              </p>
+              <p style="color:#374151;line-height:1.7;font-size:15px">
+                Your fellow alumni are celebrating with you today. We are grateful to have you as part of our family.
+              </p>
+              <div style="text-align:center;margin:28px 0">
+                <a href="${process.env.FRONTEND_URL || 'http://localhost:8080'}"
+                   style="background:linear-gradient(135deg,#1e40af,#1a2744);color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">
+                  Visit AlumniPad
+                </a>
+              </div>
+              <p style="color:#9ca3af;font-size:13px;margin-bottom:0;text-align:center">
+                With warm wishes from the AlumniPad community 🎓
+              </p>
+            </div>
+          </div>`,
+      }).catch((err) => console.error(`Birthday email error for ${alumni.email}:`, err));
+    }
+    if (result.rows.length) console.log(`Birthday emails sent to ${result.rows.length} alumni.`);
+  } catch (err) {
+    console.error('Birthday scheduler error:', err);
+  }
+}
+
+function scheduleDailyBirthdays() {
+  const now = new Date();
+  const next8am = new Date(now);
+  next8am.setHours(8, 0, 0, 0);
+  if (next8am <= now) next8am.setDate(next8am.getDate() + 1);
+  const msUntil8am = next8am - now;
+
+  setTimeout(() => {
+    sendBirthdayEmails();
+    setInterval(sendBirthdayEmails, 24 * 60 * 60 * 1000);
+  }, msUntil8am);
+  console.log(`Birthday emails scheduled — next run at 08:00 (in ${Math.round(msUntil8am / 3600000)}h)`);
+}
+
+scheduleDailyBirthdays();
 
 const app = express();
 

@@ -19,6 +19,7 @@ import Memories from '@/pages/Memories';
 import Activities from '@/pages/Activities';
 import Admin from '@/pages/Admin';
 import Marketplace from '@/pages/Marketplace';
+import EditProfile from '@/pages/EditProfile';
 import NotFound from '@/pages/NotFound';
 
 export default function App() {
@@ -50,6 +51,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/directory" element={<Directory />} />
             <Route path="/alumni/:id" element={<AlumniProfile />} />
+            <Route path="/alumni/:id/edit" element={<EditProfile />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/memories" element={<Memories />} />
             <Route path="/marketplace" element={<Marketplace />} />
