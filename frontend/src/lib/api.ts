@@ -1,7 +1,7 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 function getToken(): string | null {
-  return localStorage.getItem('alumnipad_token');
+  return sessionStorage.getItem('alumnipad_token');
 }
 
 interface RequestOptions extends RequestInit {
