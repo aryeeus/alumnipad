@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Users, Clock, Images, BookOpen, Calendar, Check, X, Plus,
@@ -474,7 +474,7 @@ function SettingsTab({ settings, onRefresh }: { settings: Record<string, unknown
   const [testingSmtp, setTestingSmtp] = useState(false);
 
   // Sync SMTP form when data loads
-  useState(() => {
+  useEffect(() => {
     if (smtp) setSmtpForm({
       smtp_host:   (smtp.smtp_host   as string) || '',
       smtp_port:   String(smtp.smtp_port || 587),
@@ -483,7 +483,8 @@ function SettingsTab({ settings, onRefresh }: { settings: Record<string, unknown
       smtp_from:   (smtp.smtp_from   as string) || '',
       smtp_secure: !!(smtp.smtp_secure),
     });
-  });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [smtpData]);
 
   // ── Birthday template ──
   const { data: tplData, isLoading: tplLoading, refetch: refetchTpl } = useQuery({
@@ -495,12 +496,12 @@ function SettingsTab({ settings, onRefresh }: { settings: Record<string, unknown
   const [savingTpl, setSavingTpl] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  useState(() => {
+  useEffect(() => {
     if (tplData) {
       setTplSubject(tplData.subject || '');
       setTplBody(tplData.body || '');
     }
-  });
+  }, [tplData]);
 
   // Handlers
   const handlePortalSave = async (e: React.FormEvent) => {
@@ -552,22 +553,6 @@ function SettingsTab({ settings, onRefresh }: { settings: Record<string, unknown
   const handleTplReset = () => {
     if (tplData) { setTplSubject(tplData.subject); setTplBody(tplData.body); }
   };
-
-  // Merge loaded smtp into form (runs once when data arrives)
-  if (smtp && !smtpForm.smtp_host && smtp.smtp_host) {
-    setSmtpForm({
-      smtp_host:   (smtp.smtp_host   as string) || '',
-      smtp_port:   String(smtp.smtp_port || 587),
-      smtp_user:   (smtp.smtp_user   as string) || '',
-      smtp_pass:   (smtp.smtp_pass   as string) || '',
-      smtp_from:   (smtp.smtp_from   as string) || '',
-      smtp_secure: !!(smtp.smtp_secure),
-    });
-  }
-  if (tplData && !tplSubject && tplData.subject) {
-    setTplSubject(tplData.subject);
-    setTplBody(tplData.body);
-  }
 
   const SF = ({ label, id, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; id: string }) => (
     <div>
