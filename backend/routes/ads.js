@@ -54,10 +54,12 @@ router.get('/', authenticate, async (req, res) => {
 
     params.push(limit, offset);
     const result = await pool.query(
-      `SELECT a.*, ap.first_name, ap.last_name, ap.profile_photo_url, u.email AS poster_email
+      `SELECT a.*,
+              ap.first_name, ap.last_name, ap.profile_photo_url,
+              u.email AS poster_email
        FROM advertisements a
-       LEFT JOIN alumni_profiles ap ON ap.user_id = a.user_id
-       LEFT JOIN users u ON u.id = a.user_id
+       LEFT JOIN alumni_profiles ap ON ap.user_id = COALESCE(a.for_alumni_id, a.user_id)
+       LEFT JOIN users u ON u.id = COALESCE(a.for_alumni_id, a.user_id)
        ${where}
        ORDER BY a.approved_at DESC
        LIMIT $${idx} OFFSET $${idx + 1}`,
@@ -91,16 +93,18 @@ router.get('/mine', authenticate, async (req, res) => {
 
 // POST /api/ads — submit a new ad
 router.post('/', authenticate, uploadAdImage.single('image'), async (req, res) => {
-  const { title, description, price, category, contact_info, business_name } = req.body;
+  const { title, description, price, category, contact_info, business_name, for_alumni_id } = req.body;
   if (!title || !description) return res.status(400).json({ error: 'Title and description required' });
 
+  // Admin can post on behalf of an alumni by supplying for_alumni_id
+  const alumniId = (req.user.is_admin && for_alumni_id) ? for_alumni_id : null;
   const image_url = req.file ? `/uploads/ads/${req.file.filename}` : null;
 
   try {
     const result = await pool.query(
-      `INSERT INTO advertisements (user_id, title, description, price, category, image_url, contact_info, business_name)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [req.user.id, title, description, price || null, category || null, image_url, contact_info || null, business_name || null]
+      `INSERT INTO advertisements (user_id, for_alumni_id, title, description, price, category, image_url, contact_info, business_name)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [req.user.id, alumniId, title, description, price || null, category || null, image_url, contact_info || null, business_name || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {

@@ -131,7 +131,7 @@ export default function Navbar() {
                     </span>
                     {profile?.graduation_year && (
                       <span className="text-xs text-blue-600 font-medium leading-tight">
-                        Class of '{String(profile.graduation_year).slice(-2)}
+                        Class of {profile.graduation_year}
                       </span>
                     )}
                   </div>

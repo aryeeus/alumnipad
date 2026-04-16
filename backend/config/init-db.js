@@ -216,6 +216,12 @@ async function initDb() {
       );
     `);
 
+    // Migrate: add for_alumni_id to advertisements (safe on existing DBs)
+    await client.query(`
+      ALTER TABLE advertisements
+        ADD COLUMN IF NOT EXISTS for_alumni_id UUID REFERENCES users(id) ON DELETE SET NULL;
+    `);
+
     // portal_settings
     await client.query(`
       CREATE TABLE IF NOT EXISTS portal_settings (

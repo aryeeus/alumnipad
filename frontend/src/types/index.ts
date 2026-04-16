@@ -151,6 +151,7 @@ export interface Advertisement {
   approved_at?: string;
   created_at: string;
   updated_at: string;
+  for_alumni_id?: string;
   // joined
   first_name?: string;
   last_name?: string;

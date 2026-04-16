@@ -106,7 +106,7 @@ export default function Index() {
           </h1>
           {graduationYear ? (
             <p className="text-lg font-semibold text-yellow-300 mb-3 tracking-wide">
-              Class of '{String(graduationYear).slice(-2)} — Welcome back!
+              Class of {graduationYear} — Welcome back!
             </p>
           ) : (
             <p className="text-base text-blue-300 mb-3 tracking-widest uppercase font-medium">

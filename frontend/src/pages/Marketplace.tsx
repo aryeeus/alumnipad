@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ShoppingBag, Plus, X, ChevronLeft, ChevronRight, Search, Clock } from 'lucide-react';
-import { adsApi } from '@/lib/api';
-import { type Advertisement } from '@/types';
+import { adsApi, alumniApi } from '@/lib/api';
+import { type Advertisement, type AlumniProfile } from '@/types';
 import AdCard from '@/components/AdCard';
 import { getStoredUser } from '@/lib/auth';
 import { toast } from 'sonner';
@@ -24,6 +24,7 @@ export default function Marketplace() {
   const [form, setForm] = useState({
     title: '', description: '', price: '', category: '', contact_info: '', business_name: '',
   });
+  const [forAlumniId, setForAlumniId] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { data, isLoading } = useQuery({
@@ -36,6 +37,14 @@ export default function Marketplace() {
     queryFn: adsApi.mine,
     enabled: showMine,
   });
+
+  const { data: alumniListData } = useQuery({
+    queryKey: ['alumni-list-all'],
+    queryFn: () => alumniApi.list({ page: 1 }),
+    enabled: !!(user?.is_admin && showCreate),
+    staleTime: 300_000,
+  });
+  const alumniList = ((alumniListData as Record<string, unknown>)?.alumni ?? []) as AlumniProfile[];
 
   const ads = (data?.ads ?? []) as Advertisement[];
   const myAdsList = (myAds ?? []) as Advertisement[];
@@ -67,10 +76,12 @@ export default function Marketplace() {
       const formData = new FormData();
       Object.entries(form).forEach(([k, v]) => { if (v) formData.append(k, v); });
       if (imageFile) formData.append('image', imageFile);
+      if (forAlumniId) formData.append('for_alumni_id', forAlumniId);
       await adsApi.create(formData);
       toast.success('Ad submitted for review! It will appear once approved.');
       setShowCreate(false);
       setForm({ title: '', description: '', price: '', category: '', contact_info: '', business_name: '' });
+      setForAlumniId('');
       setImageFile(null);
       setImagePreview(null);
       queryClient.invalidateQueries({ queryKey: ['my-ads'] });
@@ -248,11 +259,35 @@ export default function Marketplace() {
               </button>
             </div>
 
-            <p className="text-sm text-blue-700 bg-blue-50 rounded-lg px-3 py-2 mb-4">
-              Your ad will be reviewed by an administrator before it goes live.
-            </p>
+            {user?.is_admin ? (
+              <p className="text-sm text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mb-4">
+                You are posting as admin. Select the alumni this ad belongs to so their name appears on the listing.
+              </p>
+            ) : (
+              <p className="text-sm text-blue-700 bg-blue-50 rounded-lg px-3 py-2 mb-4">
+                Your ad will be reviewed by an administrator before it goes live.
+              </p>
+            )}
 
             <form onSubmit={handleCreate} className="space-y-4">
+              {user?.is_admin && (
+                <div>
+                  <label className="label">Post on behalf of Alumni *</label>
+                  <select
+                    className="input"
+                    required
+                    value={forAlumniId}
+                    onChange={(e) => setForAlumniId(e.target.value)}
+                  >
+                    <option value="">— Select alumni —</option>
+                    {alumniList.map((a) => (
+                      <option key={a.user_id} value={a.user_id}>
+                        {a.first_name} {a.last_name ?? ''} {a.graduation_year ? `(Class of ${a.graduation_year})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="label">Title *</label>
                 <input className="input" required value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="What are you selling?" />
