@@ -3,8 +3,19 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 const pool = require('../config/db');
 const { authenticate, requireAdmin } = require('../middleware/auth');
+
+function getMailer() {
+  if (!process.env.SMTP_HOST) return null;
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: parseInt(process.env.SMTP_PORT || '587'),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  });
+}
 
 const logoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -40,11 +51,66 @@ router.get('/pending', authenticate, requireAdmin, async (req, res) => {
 // POST /api/admin/approve/:userId
 router.post('/approve/:userId', authenticate, requireAdmin, async (req, res) => {
   try {
-    const result = await pool.query(
-      'UPDATE users SET is_approved = true, updated_at = NOW() WHERE id = $1 RETURNING id',
+    // Fetch user + profile before approving so we have email & name
+    const infoResult = await pool.query(
+      `SELECT u.email, ap.first_name, ap.last_name
+       FROM users u
+       LEFT JOIN alumni_profiles ap ON ap.user_id = u.id
+       WHERE u.id = $1`,
       [req.params.userId]
     );
-    if (!result.rows[0]) return res.status(404).json({ error: 'User not found' });
+    if (!infoResult.rows[0]) return res.status(404).json({ error: 'User not found' });
+
+    const { email, first_name, last_name } = infoResult.rows[0];
+
+    await pool.query(
+      'UPDATE users SET is_approved = true, updated_at = NOW() WHERE id = $1',
+      [req.params.userId]
+    );
+
+    // Send approval email (fire-and-forget — don't block the response)
+    const mailer = getMailer();
+    if (mailer && email) {
+      const displayName = first_name ? `${first_name} ${last_name ?? ''}`.trim() : email;
+      const loginUrl = `${process.env.FRONTEND_URL || 'http://localhost:8080'}/login`;
+
+      mailer.sendMail({
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        to: email,
+        subject: 'Your AlumniPad Registration Has Been Approved!',
+        html: `
+          <div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#f5f7ff">
+            <div style="background:#1a2744;border-radius:12px;padding:24px;text-align:center;margin-bottom:24px">
+              <h1 style="color:#facc15;font-size:22px;margin:0">AlumniPad</h1>
+            </div>
+            <div style="background:#fff;border-radius:12px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+              <h2 style="color:#1a2744;margin-top:0">Welcome, ${displayName}! 🎉</h2>
+              <p style="color:#374151;line-height:1.6">
+                Great news — your alumni registration has been <strong style="color:#16a34a">approved</strong>
+                by the school administration. You are now a verified member of the alumni network.
+              </p>
+              <p style="color:#374151;line-height:1.6">You can now log in to:</p>
+              <ul style="color:#374151;line-height:2">
+                <li>Browse and connect with fellow alumni</li>
+                <li>Share memories and photos</li>
+                <li>View and post on the Marketplace</li>
+                <li>Stay up to date with school events</li>
+              </ul>
+              <div style="text-align:center;margin:28px 0">
+                <a href="${loginUrl}"
+                   style="background:linear-gradient(135deg,#1e40af,#1a2744);color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;display:inline-block">
+                  Log In Now
+                </a>
+              </div>
+              <p style="color:#6b7280;font-size:13px;margin-bottom:0">
+                If you did not register on AlumniPad, please ignore this email.
+              </p>
+            </div>
+          </div>
+        `,
+      }).catch((err) => console.error('Approval email error:', err));
+    }
+
     res.json({ message: 'User approved' });
   } catch (err) {
     console.error('Approve error:', err);

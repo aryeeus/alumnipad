@@ -54,11 +54,11 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 text-white border-b border-white/10" style={{ background: 'rgba(13,27,62,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+    <nav className="sticky top-0 z-50 border-b border-gray-200/70" style={{ background: 'rgba(255,255,255,0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-xl">
+          <Link to="/" className="flex items-center gap-2 font-bold text-xl text-gray-900">
             {logoUrl ? (
               <img
                 src={logoUrl}
@@ -66,10 +66,10 @@ export default function Navbar() {
                 className="h-8 w-8 object-contain rounded"
               />
             ) : (
-              <GraduationCap className="h-7 w-7 text-yellow-400" />
+              <GraduationCap className="h-7 w-7 text-blue-700" />
             )}
             <span>
-              Alumni<span className="text-yellow-400">Pad</span>
+              Alumni<span className="text-blue-700">Pad</span>
             </span>
           </Link>
 
@@ -85,7 +85,7 @@ export default function Navbar() {
                     'px-3 py-2 rounded-md text-sm font-medium transition-colors',
                     isActive(link.to)
                       ? 'bg-blue-700 text-white'
-                      : 'text-gray-300 hover:bg-blue-800 hover:text-white'
+                      : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
                   )}
                 >
                   {link.label}
@@ -101,7 +101,7 @@ export default function Navbar() {
                 {user.is_admin && (
                   <Link
                     to="/admin"
-                    className="flex items-center gap-1 px-3 py-2 text-sm rounded-md text-yellow-400 hover:bg-blue-800 transition-colors"
+                    className="flex items-center gap-1 px-3 py-2 text-sm rounded-md text-blue-700 hover:bg-blue-50 transition-colors font-medium"
                   >
                     <Shield className="h-4 w-4" />
                     Admin
@@ -111,28 +111,28 @@ export default function Navbar() {
                 {/* User identity chip */}
                 <Link
                   to={`/alumni/${user.id}`}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-blue-800 transition-colors"
+                  className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                   title="View my profile"
                 >
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
                       alt={displayName}
-                      className="h-7 w-7 rounded-full object-cover border-2 border-blue-400"
+                      className="h-7 w-7 rounded-full object-cover border-2 border-blue-300"
                     />
                   ) : (
-                    <div className="h-7 w-7 rounded-full bg-yellow-400 text-gray-900 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <div className="h-7 w-7 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                       {initials}
                     </div>
                   )}
-                  <span className="text-sm text-gray-200 font-medium max-w-[120px] truncate">
+                  <span className="text-sm text-gray-700 font-medium max-w-[120px] truncate">
                     {displayName}
                   </span>
                 </Link>
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-1 px-3 py-2 text-sm rounded-md text-gray-300 hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-1 px-3 py-2 text-sm rounded-md text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   Logout
@@ -146,14 +146,14 @@ export default function Navbar() {
                     'px-4 py-2 text-sm rounded-md font-medium transition-colors',
                     isActive('/register')
                       ? 'bg-blue-700 text-white'
-                      : 'text-gray-300 hover:bg-blue-800 hover:text-white'
+                      : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
                   )}
                 >
                   Register
                 </Link>
                 <Link
                   to="/login"
-                  className="flex items-center gap-1 px-4 py-2 text-sm rounded-md bg-blue-600 hover:bg-blue-500 font-medium transition-colors"
+                  className="flex items-center gap-1 px-4 py-2 text-sm rounded-md bg-blue-700 hover:bg-blue-800 text-white font-medium transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   Login
@@ -163,7 +163,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu toggle */}
-          <button className="md:hidden p-2 rounded-md" onClick={() => setOpen(!open)}>
+          <button className="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100" onClick={() => setOpen(!open)}>
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
@@ -171,7 +171,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden border-t border-white/10 px-4 py-3 space-y-1" style={{ background: 'rgba(13,27,62,0.95)', backdropFilter: 'blur(16px)' }}>
+        <div className="md:hidden border-t border-gray-100 px-4 py-3 space-y-1" style={{ background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)' }}>
           {navLinks.map((link) => {
             if (link.auth && !user) return null;
             return (
@@ -181,45 +181,45 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className={cn(
                   'block px-3 py-2 rounded-md text-sm font-medium',
-                  isActive(link.to) ? 'bg-blue-700 text-white' : 'text-gray-300 hover:bg-blue-800'
+                  isActive(link.to) ? 'bg-blue-700 text-white' : 'text-gray-600 hover:bg-blue-50 hover:text-blue-700'
                 )}
               >
                 {link.label}
               </Link>
             );
           })}
-          <div className="border-t border-blue-800 pt-2 mt-2">
+          <div className="border-t border-gray-100 pt-2 mt-2">
             {user ? (
               <>
                 {/* Mobile identity row */}
                 <div className="flex items-center gap-2 px-3 py-2">
                   {avatarUrl ? (
-                    <img src={avatarUrl} alt={displayName} className="h-8 w-8 rounded-full object-cover border-2 border-blue-400" />
+                    <img src={avatarUrl} alt={displayName} className="h-8 w-8 rounded-full object-cover border-2 border-blue-300" />
                   ) : (
-                    <div className="h-8 w-8 rounded-full bg-yellow-400 text-gray-900 flex items-center justify-center text-xs font-bold">
+                    <div className="h-8 w-8 rounded-full bg-blue-700 text-white flex items-center justify-center text-xs font-bold">
                       {initials}
                     </div>
                   )}
-                  <span className="text-sm text-white font-medium truncate">{displayName}</span>
+                  <span className="text-sm text-gray-800 font-medium truncate">{displayName}</span>
                 </div>
                 {user.is_admin && (
-                  <Link to="/admin" onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-yellow-400">
+                  <Link to="/admin" onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-blue-700 font-medium">
                     Admin Dashboard
                   </Link>
                 )}
-                <Link to={`/alumni/${user.id}`} onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-gray-300">
+                <Link to={`/alumni/${user.id}`} onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-gray-600">
                   My Profile
                 </Link>
-                <button onClick={handleLogout} className="block w-full text-left px-3 py-2 text-sm text-red-400">
+                <button onClick={handleLogout} className="block w-full text-left px-3 py-2 text-sm text-red-500">
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/register" onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-gray-300">
+                <Link to="/register" onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-gray-600">
                   Register
                 </Link>
-                <Link to="/login" onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-gray-300">
+                <Link to="/login" onClick={() => setOpen(false)} className="block px-3 py-2 text-sm text-blue-700 font-medium">
                   Login
                 </Link>
               </>
