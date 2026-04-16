@@ -225,21 +225,25 @@ router.delete('/activities/:id', authenticate, requireAdmin, async (req, res) =>
 
 // ── Birthdays ──────────────────────────────────────────────────
 
-// GET /api/admin/birthdays — alumni with birthdays today + next 7 days
+// GET /api/admin/birthdays — alumni with birthdays today + next 30 days
 router.get('/birthdays', authenticate, requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(`
       WITH bd AS (
         SELECT u.id AS user_id, u.email,
                ap.first_name, ap.last_name, ap.profile_photo_url, ap.date_of_birth,
-               (DATE_PART('year', CURRENT_DATE)::text || '-' || TO_CHAR(ap.date_of_birth, 'MM-DD'))::date AS birthday_this_year
+               CASE
+                 WHEN (DATE_PART('year', CURRENT_DATE)::text || '-' || TO_CHAR(ap.date_of_birth, 'MM-DD'))::date >= CURRENT_DATE
+                 THEN (DATE_PART('year', CURRENT_DATE)::text || '-' || TO_CHAR(ap.date_of_birth, 'MM-DD'))::date
+                 ELSE ((DATE_PART('year', CURRENT_DATE) + 1)::text || '-' || TO_CHAR(ap.date_of_birth, 'MM-DD'))::date
+               END AS birthday_this_year
         FROM alumni_profiles ap
         JOIN users u ON u.id = ap.user_id
         WHERE u.is_approved = true AND u.is_admin = false AND ap.date_of_birth IS NOT NULL
       )
       SELECT *, (birthday_this_year - CURRENT_DATE)::int AS days_until
       FROM bd
-      WHERE birthday_this_year BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
+      WHERE birthday_this_year BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
       ORDER BY days_until, last_name
     `);
     res.json(result.rows);

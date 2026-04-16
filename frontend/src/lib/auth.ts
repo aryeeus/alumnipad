@@ -7,18 +7,23 @@ export interface StoredUser {
   is_admin: boolean;
 }
 
+// sessionStorage so the session is cleared when the browser/tab is closed,
+// forcing the user to log in again on next visit.
 export function saveAuth(token: string, user: StoredUser): void {
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-}
-
-export function clearAuth(): void {
+  sessionStorage.setItem(TOKEN_KEY, token);
+  sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  // Clear any stale localStorage tokens from older sessions
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
 }
 
+export function clearAuth(): void {
+  sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(USER_KEY);
+}
+
 export function getStoredUser(): StoredUser | null {
-  const raw = localStorage.getItem(USER_KEY);
+  const raw = sessionStorage.getItem(USER_KEY);
   if (!raw) return null;
   try {
     return JSON.parse(raw) as StoredUser;
@@ -28,7 +33,7 @@ export function getStoredUser(): StoredUser | null {
 }
 
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return sessionStorage.getItem(TOKEN_KEY);
 }
 
 export function isAuthenticated(): boolean {

@@ -125,9 +125,16 @@ export default function Navbar() {
                       {initials}
                     </div>
                   )}
-                  <span className="text-sm text-gray-700 font-medium max-w-[120px] truncate">
-                    {displayName}
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-700 font-medium max-w-[120px] truncate leading-tight">
+                      {displayName}
+                    </span>
+                    {profile?.graduation_year && (
+                      <span className="text-xs text-blue-600 font-medium leading-tight">
+                        Class of '{String(profile.graduation_year).slice(-2)}
+                      </span>
+                    )}
+                  </div>
                 </Link>
 
                 <button

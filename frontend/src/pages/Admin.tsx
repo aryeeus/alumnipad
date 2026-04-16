@@ -136,13 +136,18 @@ export default function Admin() {
           )}
 
           {/* Birthdays */}
-          {birthdays.length > 0 && (
-            <div className="card p-5">
-              <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Cake className="h-5 w-5 text-pink-500" />
-                Upcoming Birthdays
-                <span className="ml-auto text-xs text-gray-400 font-normal">Next 7 days</span>
-              </h2>
+          <div className="card p-5">
+            <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Cake className="h-5 w-5 text-pink-500" />
+              Upcoming Birthdays
+              <span className="ml-auto text-xs text-gray-400 font-normal">Next 30 days</span>
+            </h2>
+            {birthdays.length === 0 ? (
+              <div className="text-center py-8">
+                <Cake className="h-10 w-10 text-pink-200 mx-auto mb-2" />
+                <p className="text-gray-400 text-sm">No birthdays in the next 30 days</p>
+              </div>
+            ) : (
               <div className="space-y-3">
                 {birthdays.map((b) => {
                   const isToday = b.days_until === 0;
@@ -176,13 +181,13 @@ export default function Admin() {
                   );
                 })}
               </div>
-              {birthdays.some((b) => b.days_until === 0) && (
-                <p className="text-xs text-pink-600 mt-3 bg-pink-50 rounded-lg px-3 py-2">
-                  🎉 Birthday emails are sent automatically at 8:00 AM on each alumnus's birthday.
-                </p>
-              )}
-            </div>
-          )}
+            )}
+            {birthdays.some((b) => b.days_until === 0) && (
+              <p className="text-xs text-pink-600 mt-3 bg-pink-50 rounded-lg px-3 py-2">
+                🎉 Birthday emails are sent automatically at 8:00 AM on each alumnus's birthday.
+              </p>
+            )}
+          </div>
         </div>
       )}
 

@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { Users, Images, BookOpen, Calendar, Star, ArrowRight, GraduationCap, Network } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { publicApi } from '@/lib/api';
-import { getToken, getPhotoUrl } from '@/lib/auth';
+import { publicApi, alumniApi } from '@/lib/api';
+import { getToken, getPhotoUrl, getStoredUser } from '@/lib/auth';
 
 const SCHOOL_HOUSES = 7;
 const SCHOOL_PROGRAMS = 5;
@@ -40,6 +40,7 @@ function StatsBar({ totalAlumni, cities, mentors }: { totalAlumni: number; citie
 
 export default function Index() {
   const token = getToken();
+  const currentUser = getStoredUser();
 
   const { data: stats } = useQuery({
     queryKey: ['public-stats'],
@@ -52,6 +53,16 @@ export default function Index() {
     queryFn: publicApi.settings,
     staleTime: 300_000,
   });
+
+  const { data: myProfile } = useQuery({
+    queryKey: ['alumni', currentUser?.id],
+    queryFn: () => alumniApi.get(currentUser!.id),
+    enabled: !!currentUser,
+    staleTime: 300_000,
+  });
+
+  const profile = myProfile as Record<string, unknown> | undefined;
+  const graduationYear = profile?.graduation_year as number | undefined;
 
   const registerUrl = `${window.location.origin}/register`;
   const logoUrl = settings?.logo_url ? getPhotoUrl(settings.logo_url) : null;
@@ -93,6 +104,15 @@ export default function Index() {
           <h1 className="text-5xl md:text-6xl font-extrabold mb-4">
             Welcome to <span className="text-yellow-400">AlumniPad</span>
           </h1>
+          {graduationYear ? (
+            <p className="text-lg font-semibold text-yellow-300 mb-3 tracking-wide">
+              Class of '{String(graduationYear).slice(-2)} — Welcome back!
+            </p>
+          ) : (
+            <p className="text-base text-blue-300 mb-3 tracking-widest uppercase font-medium">
+              Connecting Every Class of Alumni
+            </p>
+          )}
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Your single source of truth for connecting with fellow alumni. Rediscover old friends, build new networks, and stay connected with your school community.
           </p>

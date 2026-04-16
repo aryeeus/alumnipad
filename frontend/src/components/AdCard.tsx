@@ -89,17 +89,18 @@ export default function AdCard({ ad, onDelete, showOwner = true }: Props) {
         </div>
 
         {showOwner && (
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+          <div className="flex items-center gap-2.5 mt-3 pt-3 border-t border-gray-100 bg-gray-50 -mx-4 -mb-4 px-4 pb-4 rounded-b-2xl">
             {ad.profile_photo_url ? (
-              <img src={getPhotoUrl(ad.profile_photo_url)} className="h-7 w-7 rounded-full object-cover border border-blue-100 flex-shrink-0" alt={posterName} />
+              <img src={getPhotoUrl(ad.profile_photo_url)} className="h-8 w-8 rounded-full object-cover border-2 border-white shadow-sm flex-shrink-0" alt={posterName} />
             ) : (
-              <div className="h-7 w-7 rounded-full bg-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              <div className="h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-sm"
+                   style={{ background: 'linear-gradient(135deg,#1a2744,#1e40af)' }}>
                 {posterInitials}
               </div>
             )}
             <div className="min-w-0">
               <p className="text-xs text-gray-400 leading-none">Posted by</p>
-              <p className="text-xs font-semibold text-gray-700 truncate mt-0.5">{posterName}</p>
+              <p className="text-sm font-semibold text-gray-800 truncate mt-0.5">{posterName}</p>
             </div>
           </div>
         )}

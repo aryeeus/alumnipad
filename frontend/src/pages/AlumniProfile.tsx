@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   MapPin, Briefcase, Phone, Mail, Linkedin, Facebook, Instagram,
   GraduationCap, Building2, Star, Award, ArrowLeft, Globe,
-  Camera, Loader2, Edit2, Calendar, Users, BookOpen, Shield
+  Camera, Loader2, Edit2, Calendar, Users, BookOpen, Shield, Home
 } from 'lucide-react';
 import { alumniApi } from '@/lib/api';
 import { type AlumniProfile as AlumniProfileType } from '@/types';
@@ -136,77 +136,82 @@ export default function AlumniProfile() {
 
         {/* ── Name + headline card ── */}
         <div className="card p-6 mb-5">
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
-                  {displayName}
-                </h1>
-                {currentUser?.is_admin && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 font-medium border border-blue-100">
-                    <Shield className="h-3 w-3" /> Verified
-                  </span>
-                )}
-              </div>
-              {p.preferred_name && (
-                <p className="text-sm text-gray-400 mb-2">Known as <span className="font-medium text-gray-600">"{p.preferred_name}"</span></p>
-              )}
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>
+              {displayName}
+            </h1>
+            {currentUser?.is_admin && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 font-medium border border-blue-100">
+                <Shield className="h-3 w-3" /> Verified
+              </span>
+            )}
+          </div>
+          {p.preferred_name && (
+            <p className="text-sm text-gray-400 mb-2">Known as <span className="font-medium text-gray-600">"{p.preferred_name}"</span></p>
+          )}
 
-              {/* Occupation + employer */}
-              {p.occupation && (
-                <p className="flex items-center gap-2 text-gray-700 font-medium mt-2">
-                  <Briefcase className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                  {p.occupation}
-                  {p.employer && <span className="text-gray-400 font-normal">at <span className="text-gray-600">{p.employer}</span></span>}
-                </p>
-              )}
-              {p.city && (
-                <p className="flex items-center gap-2 text-gray-500 text-sm mt-1.5">
-                  <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                  {[p.city, p.region, p.country].filter(Boolean).join(', ')}
-                </p>
-              )}
+          {/* Occupation + employer */}
+          {p.occupation && (
+            <p className="flex items-center gap-2 text-gray-700 font-medium mt-2">
+              <Briefcase className="h-4 w-4 text-blue-500 flex-shrink-0" />
+              {p.occupation}
+              {p.employer && <span className="text-gray-400 font-normal">at <span className="text-gray-600">{p.employer}</span></span>}
+            </p>
+          )}
+          {p.city && (
+            <p className="flex items-center gap-2 text-gray-500 text-sm mt-1.5">
+              <MapPin className="h-4 w-4 text-gray-400 flex-shrink-0" />
+              {[p.city, p.region, p.country].filter(Boolean).join(', ')}
+            </p>
+          )}
 
-              {/* Social links */}
-              {(p.linkedin_url || p.facebook_url || p.instagram_url) && (
-                <div className="flex gap-2 mt-3">
-                  {p.linkedin_url && (
-                    <a href={p.linkedin_url} target="_blank" rel="noopener noreferrer"
-                       className="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors" title="LinkedIn">
-                      <Linkedin className="h-4 w-4" />
-                    </a>
-                  )}
-                  {p.facebook_url && (
-                    <a href={p.facebook_url} target="_blank" rel="noopener noreferrer"
-                       className="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors" title="Facebook">
-                      <Facebook className="h-4 w-4" />
-                    </a>
-                  )}
-                  {p.instagram_url && (
-                    <a href={`https://instagram.com/${p.instagram_url.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
-                       className="h-8 w-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 text-white hover:opacity-90 transition-opacity" title="Instagram">
-                      <Instagram className="h-4 w-4" />
-                    </a>
-                  )}
-                </div>
+          {/* Social links */}
+          {(p.linkedin_url || p.facebook_url || p.instagram_url) && (
+            <div className="flex gap-2 mt-3">
+              {p.linkedin_url && (
+                <a href={p.linkedin_url} target="_blank" rel="noopener noreferrer"
+                   className="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors" title="LinkedIn">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+              )}
+              {p.facebook_url && (
+                <a href={p.facebook_url} target="_blank" rel="noopener noreferrer"
+                   className="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-500 text-white hover:bg-blue-600 transition-colors" title="Facebook">
+                  <Facebook className="h-4 w-4" />
+                </a>
+              )}
+              {p.instagram_url && (
+                <a href={`https://instagram.com/${p.instagram_url.replace('@', '')}`} target="_blank" rel="noopener noreferrer"
+                   className="h-8 w-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 text-white hover:opacity-90 transition-opacity" title="Instagram">
+                  <Instagram className="h-4 w-4" />
+                </a>
               )}
             </div>
+          )}
 
-            {/* Badge column */}
-            <div className="flex flex-wrap sm:flex-col gap-2 sm:items-end flex-shrink-0">
+          {/* Bio */}
+          {p.bio && (
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <p className="text-sm text-gray-700 leading-relaxed italic">"{p.bio}"</p>
+            </div>
+          )}
+
+          {/* ── Horizontal badge strip ── */}
+          {(p.graduation_year || p.house || p.program || p.is_mentor_available || p.is_speaker_available) && (
+            <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2">
               {p.graduation_year && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold bg-blue-700 text-white shadow-sm">
-                  <GraduationCap className="h-4 w-4" /> Class of {p.graduation_year}
+                  <GraduationCap className="h-4 w-4" /> Class of '{String(p.graduation_year).slice(-2)}
                 </span>
               )}
               {p.house && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold bg-amber-500 text-white shadow-sm">
-                  {p.house} House
+                  <Home className="h-4 w-4" /> {p.house} House
                 </span>
               )}
               {p.program && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-semibold bg-emerald-600 text-white shadow-sm">
-                  {p.program}
+                  <BookOpen className="h-4 w-4" /> {p.program}
                 </span>
               )}
               {p.is_mentor_available && (
@@ -219,13 +224,6 @@ export default function AlumniProfile() {
                   <Award className="h-3.5 w-3.5" /> Speaker
                 </span>
               )}
-            </div>
-          </div>
-
-          {/* Bio */}
-          {p.bio && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-sm text-gray-700 leading-relaxed italic">"{p.bio}"</p>
             </div>
           )}
         </div>
