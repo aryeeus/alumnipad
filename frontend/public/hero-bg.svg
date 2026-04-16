@@ -1,0 +1,253 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#060e1f"/>
+      <stop offset="45%" stop-color="#0f1e3d"/>
+      <stop offset="100%" stop-color="#091529"/>
+    </linearGradient>
+    <radialGradient id="centerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1e40af" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#1e40af" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="leftGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#1e3a8a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="55%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
+    </radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softBlur">
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+    <pattern id="dotGrid" x="0" y="0" width="72" height="72" patternUnits="userSpaceOnUse">
+      <circle cx="36" cy="36" r="0.9" fill="#ffffff" opacity="0.12"/>
+    </pattern>
+  </defs>
+
+  <!-- Base -->
+  <rect width="1440" height="900" fill="url(#bgGrad)"/>
+
+  <!-- Atmospheric glows -->
+  <ellipse cx="360" cy="420" rx="480" ry="380" fill="url(#leftGlow)" opacity="0.5"/>
+  <ellipse cx="1150" cy="220" rx="400" ry="320" fill="url(#centerGlow)" opacity="0.45"/>
+  <ellipse cx="720" cy="650" rx="500" ry="280" fill="url(#centerGlow)" opacity="0.2"/>
+
+  <!-- ══════════ NETWORK CONNECTIONS ══════════ -->
+  <!-- Gold lines -->
+  <g stroke="#c9960f" stroke-width="0.85" opacity="0.22" filter="url(#softBlur)">
+    <line x1="80" y1="100" x2="240" y2="62"/>
+    <line x1="80" y1="100" x2="148" y2="272"/>
+    <line x1="240" y1="62" x2="418" y2="142"/>
+    <line x1="418" y1="142" x2="600" y2="82"/>
+    <line x1="418" y1="142" x2="320" y2="352"/>
+    <line x1="418" y1="142" x2="500" y2="252"/>
+    <line x1="600" y1="82" x2="778" y2="152"/>
+    <line x1="778" y1="152" x2="958" y2="72"/>
+    <line x1="778" y1="152" x2="680" y2="322"/>
+    <line x1="778" y1="152" x2="860" y2="242"/>
+    <line x1="958" y1="72" x2="1140" y2="132"/>
+    <line x1="1140" y1="132" x2="1338" y2="92"/>
+    <line x1="1140" y1="132" x2="1040" y2="302"/>
+    <line x1="1140" y1="132" x2="1220" y2="232"/>
+    <line x1="1338" y1="92" x2="1400" y2="292"/>
+    <line x1="148" y1="272" x2="320" y2="352"/>
+    <line x1="148" y1="272" x2="80" y2="480"/>
+    <line x1="320" y1="352" x2="500" y2="252"/>
+    <line x1="320" y1="352" x2="260" y2="442"/>
+    <line x1="500" y1="252" x2="680" y2="322"/>
+    <line x1="680" y1="322" x2="860" y2="242"/>
+    <line x1="680" y1="322" x2="450" y2="532"/>
+    <line x1="860" y1="242" x2="1040" y2="302"/>
+    <line x1="1040" y1="302" x2="1220" y2="232"/>
+    <line x1="1040" y1="302" x2="1010" y2="462"/>
+    <line x1="1220" y1="232" x2="1400" y2="292"/>
+    <line x1="1220" y1="232" x2="1200" y2="522"/>
+    <line x1="1400" y1="292" x2="1380" y2="472"/>
+    <line x1="80" y1="480" x2="260" y2="442"/>
+    <line x1="80" y1="480" x2="170" y2="662"/>
+    <line x1="260" y1="442" x2="450" y2="532"/>
+    <line x1="260" y1="442" x2="170" y2="662"/>
+    <line x1="450" y1="532" x2="640" y2="462"/>
+    <line x1="640" y1="462" x2="820" y2="512"/>
+    <line x1="640" y1="462" x2="580" y2="652"/>
+    <line x1="820" y1="512" x2="1010" y2="462"/>
+    <line x1="1010" y1="462" x2="1200" y2="522"/>
+    <line x1="1010" y1="462" x2="980" y2="662"/>
+    <line x1="1200" y1="522" x2="1380" y2="472"/>
+    <line x1="1380" y1="472" x2="1380" y2="672"/>
+    <line x1="170" y1="662" x2="380" y2="712"/>
+    <line x1="170" y1="662" x2="50" y2="822"/>
+    <line x1="380" y1="712" x2="580" y2="652"/>
+    <line x1="380" y1="712" x2="300" y2="802"/>
+    <line x1="580" y1="652" x2="780" y2="702"/>
+    <line x1="580" y1="652" x2="560" y2="832"/>
+    <line x1="780" y1="702" x2="980" y2="662"/>
+    <line x1="980" y1="662" x2="1180" y2="712"/>
+    <line x1="980" y1="662" x2="820" y2="812"/>
+    <line x1="1180" y1="712" x2="1380" y2="672"/>
+    <line x1="1380" y1="672" x2="1340" y2="802"/>
+    <line x1="50" y1="822" x2="300" y2="802"/>
+    <line x1="300" y1="802" x2="560" y2="832"/>
+    <line x1="560" y1="832" x2="820" y2="812"/>
+    <line x1="820" y1="812" x2="1080" y2="822"/>
+    <line x1="1080" y1="822" x2="1340" y2="802"/>
+    <!-- Cross diagonals for density -->
+    <line x1="418" y1="142" x2="148" y2="272"/>
+    <line x1="500" y1="252" x2="450" y2="532"/>
+    <line x1="860" y1="242" x2="1010" y2="462"/>
+    <line x1="260" y1="442" x2="320" y2="352"/>
+    <line x1="640" y1="462" x2="820" y2="512"/>
+    <line x1="380" y1="712" x2="560" y2="832"/>
+    <line x1="780" y1="702" x2="1080" y2="822"/>
+    <line x1="1040" y1="302" x2="1200" y2="522"/>
+  </g>
+
+  <!-- Blue accent lines -->
+  <g stroke="#3b82f6" stroke-width="0.7" opacity="0.14">
+    <line x1="80" y1="100" x2="418" y2="142"/>
+    <line x1="778" y1="152" x2="1140" y2="132"/>
+    <line x1="148" y1="272" x2="500" y2="252"/>
+    <line x1="860" y1="242" x2="1220" y2="232"/>
+    <line x1="80" y1="480" x2="450" y2="532"/>
+    <line x1="820" y1="512" x2="1380" y2="472"/>
+    <line x1="170" y1="662" x2="580" y2="652"/>
+    <line x1="980" y1="662" x2="1380" y2="672"/>
+    <line x1="300" y1="802" x2="820" y2="812"/>
+  </g>
+
+  <!-- ══════════ NETWORK NODES ══════════ -->
+  <g filter="url(#glow)">
+    <!-- Gold nodes -->
+    <circle cx="80" cy="100" r="5" fill="#d4a017" opacity="0.75"/>
+    <circle cx="418" cy="142" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="600" cy="82" r="4" fill="#d4a017" opacity="0.65"/>
+    <circle cx="778" cy="152" r="5.5" fill="#d4a017" opacity="0.75"/>
+    <circle cx="1140" cy="132" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="1338" cy="92" r="4" fill="#d4a017" opacity="0.65"/>
+    <circle cx="148" cy="272" r="4" fill="#d4a017" opacity="0.65"/>
+    <circle cx="320" cy="352" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="680" cy="322" r="5.5" fill="#d4a017" opacity="0.75"/>
+    <circle cx="860" cy="242" r="4.5" fill="#d4a017" opacity="0.7"/>
+    <circle cx="1040" cy="302" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="1400" cy="292" r="5" fill="#d4a017" opacity="0.7"/>
+    <circle cx="80" cy="480" r="4.5" fill="#d4a017" opacity="0.7"/>
+    <circle cx="260" cy="442" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="640" cy="462" r="5.5" fill="#d4a017" opacity="0.75"/>
+    <circle cx="820" cy="512" r="4.5" fill="#d4a017" opacity="0.7"/>
+    <circle cx="1010" cy="462" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="1380" cy="472" r="5" fill="#d4a017" opacity="0.7"/>
+    <circle cx="170" cy="662" r="5.5" fill="#d4a017" opacity="0.75"/>
+    <circle cx="580" cy="652" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="780" cy="702" r="4.5" fill="#d4a017" opacity="0.7"/>
+    <circle cx="980" cy="662" r="5.5" fill="#d4a017" opacity="0.75"/>
+    <circle cx="1380" cy="672" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="300" cy="802" r="5.5" fill="#d4a017" opacity="0.75"/>
+    <circle cx="560" cy="832" r="4.5" fill="#d4a017" opacity="0.7"/>
+    <circle cx="820" cy="812" r="6.5" fill="#d4a017" opacity="0.85"/>
+    <circle cx="1340" cy="802" r="5.5" fill="#d4a017" opacity="0.75"/>
+    <!-- Blue nodes -->
+    <circle cx="240" cy="62" r="3.5" fill="#60a5fa" opacity="0.65"/>
+    <circle cx="958" cy="72" r="3.5" fill="#60a5fa" opacity="0.65"/>
+    <circle cx="500" cy="252" r="3.5" fill="#60a5fa" opacity="0.65"/>
+    <circle cx="1220" cy="232" r="3.5" fill="#60a5fa" opacity="0.65"/>
+    <circle cx="450" cy="532" r="3.5" fill="#60a5fa" opacity="0.65"/>
+    <circle cx="1200" cy="522" r="3.5" fill="#60a5fa" opacity="0.65"/>
+    <circle cx="380" cy="712" r="3.5" fill="#60a5fa" opacity="0.65"/>
+    <circle cx="1180" cy="712" r="3.5" fill="#60a5fa" opacity="0.65"/>
+    <circle cx="50" cy="822" r="3" fill="#60a5fa" opacity="0.6"/>
+    <circle cx="1080" cy="822" r="3" fill="#60a5fa" opacity="0.6"/>
+  </g>
+
+  <!-- ══════════ GRADUATION CAP SILHOUETTE (top-right) ══════════ -->
+  <g opacity="0.055" transform="translate(990,80) scale(2.4)">
+    <!-- Board -->
+    <polygon points="110,0 225,52 110,104 0,52" fill="#d4a017"/>
+    <!-- Body -->
+    <path d="M 40,67 L 180,67 L 190,162 L 30,162 Z" fill="#d4a017"/>
+    <!-- Button -->
+    <circle cx="110" cy="0" r="11" fill="#e8b820"/>
+    <!-- Tassel rope -->
+    <line x1="225" y1="52" x2="225" y2="168" stroke="#d4a017" stroke-width="5"/>
+    <!-- Tassel block -->
+    <rect x="210" y="168" width="30" height="18" fill="#d4a017"/>
+    <!-- Tassel fringe -->
+    <line x1="213" y1="186" x2="212" y2="210" stroke="#d4a017" stroke-width="2.5"/>
+    <line x1="219" y1="186" x2="218" y2="214" stroke="#d4a017" stroke-width="2.5"/>
+    <line x1="225" y1="186" x2="225" y2="212" stroke="#d4a017" stroke-width="2.5"/>
+    <line x1="231" y1="186" x2="231" y2="214" stroke="#d4a017" stroke-width="2.5"/>
+    <line x1="237" y1="186" x2="237" y2="210" stroke="#d4a017" stroke-width="2.5"/>
+  </g>
+
+  <!-- Second faint cap bottom-left -->
+  <g opacity="0.035" transform="translate(20,580) scale(1.5)">
+    <polygon points="100,0 200,46 100,92 0,46" fill="#d4a017"/>
+    <path d="M 36,59 L 164,59 L 172,140 L 28,140 Z" fill="#d4a017"/>
+    <circle cx="100" cy="0" r="9" fill="#e8b820"/>
+    <line x1="200" y1="46" x2="200" y2="144" stroke="#d4a017" stroke-width="4"/>
+    <rect x="186" y="144" width="28" height="15" fill="#d4a017"/>
+  </g>
+
+  <!-- ══════════ GEOMETRIC / ADINKRA ACCENTS ══════════ -->
+  <!-- Rising arcs – bottom left -->
+  <g opacity="0.09" stroke="#c9960f" fill="none" stroke-width="1.5">
+    <path d="M 0,900 A 160,160 0 0,1 160,740"/>
+    <path d="M 0,900 A 240,240 0 0,1 240,660"/>
+    <path d="M 0,900 A 330,330 0 0,1 330,570"/>
+    <path d="M 0,900 A 420,420 0 0,1 420,480"/>
+    <path d="M 0,900 A 520,520 0 0,1 520,380"/>
+  </g>
+
+  <!-- Concentric arcs – top right corner -->
+  <g opacity="0.06" stroke="#3b82f6" fill="none" stroke-width="1.2">
+    <path d="M 1440,0 A 180,180 0 0,1 1260,180"/>
+    <path d="M 1440,0 A 280,280 0 0,1 1160,280"/>
+    <path d="M 1440,0 A 380,380 0 0,1 1060,380"/>
+    <path d="M 1440,0 A 480,480 0 0,1 960,480"/>
+  </g>
+
+  <!-- Adinkra diamond-cross motif – bottom right -->
+  <g opacity="0.08" stroke="#c9960f" fill="none" stroke-width="1.5" transform="translate(1310,808)">
+    <polygon points="0,-48 48,0 0,48 -48,0"/>
+    <polygon points="0,-32 32,0 0,32 -32,0"/>
+    <polygon points="0,-16 16,0 0,16 -16,0"/>
+    <line x1="-70" y1="0" x2="70" y2="0"/>
+    <line x1="0" y1="-70" x2="0" y2="70"/>
+    <circle cx="0" cy="0" r="6" fill="#c9960f" opacity="0.25"/>
+  </g>
+
+  <!-- Adinkra star-cross motif – top left -->
+  <g opacity="0.07" stroke="#c9960f" fill="none" stroke-width="1.5" transform="translate(120,820)">
+    <polygon points="0,-52 52,0 0,52 -52,0"/>
+    <line x1="-72" y1="0" x2="72" y2="0"/>
+    <line x1="0" y1="-72" x2="0" y2="72"/>
+    <line x1="-36" y1="-36" x2="36" y2="36"/>
+    <line x1="36" y1="-36" x2="-36" y2="36"/>
+    <circle cx="0" cy="0" r="18" fill="#c9960f" opacity="0.15"/>
+    <circle cx="0" cy="0" r="6" fill="#c9960f" opacity="0.3"/>
+  </g>
+
+  <!-- ══════════ SPARKLE STARS ══════════ -->
+  <g fill="#e8b820" opacity="0.38">
+    <polygon points="698,38 700,32 702,38 708,40 702,42 700,48 698,42 692,40" />
+    <polygon points="1295,402 1297,396 1299,402 1305,404 1299,406 1297,412 1295,406 1289,404"/>
+    <polygon points="198,554 200,548 202,554 208,556 202,558 200,564 198,558 192,556"/>
+    <polygon points="1098,622 1100,616 1102,622 1108,624 1102,626 1100,632 1098,626 1092,624"/>
+    <polygon points="488,392 490,386 492,392 498,394 492,396 490,402 488,396 482,394"/>
+    <polygon points="1048,184 1050,178 1052,184 1058,186 1052,188 1050,194 1048,188 1042,186"/>
+    <polygon points="358,772 360,766 362,772 368,774 362,776 360,782 358,776 352,774"/>
+    <polygon points="898,762 900,756 902,762 908,764 902,766 900,772 898,766 892,764"/>
+    <polygon points="1198,390 1200,384 1202,390 1208,392 1202,394 1200,400 1198,394 1192,392"/>
+    <polygon points="548,142 550,136 552,142 558,144 552,146 550,152 548,146 542,144"/>
+  </g>
+
+  <!-- Dot grid overlay -->
+  <rect width="1440" height="900" fill="url(#dotGrid)"/>
+
+  <!-- Vignette for text contrast -->
+  <rect width="1440" height="900" fill="url(#vignette)"/>
+</svg>
