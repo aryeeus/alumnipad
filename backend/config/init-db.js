@@ -93,6 +93,12 @@ async function initDb() {
       );
     `);
 
+    // Migrate: add alumni_code (unique human-readable identifier per alumni)
+    await client.query(`
+      ALTER TABLE alumni_profiles
+        ADD COLUMN IF NOT EXISTS alumni_code VARCHAR(20) UNIQUE;
+    `);
+
     // Migrate: add columns introduced in v3 (safe on existing DBs)
     await client.query(`
       ALTER TABLE alumni_profiles
@@ -234,6 +240,101 @@ async function initDb() {
         ADD COLUMN IF NOT EXISTS birthday_subject VARCHAR(500),
         ADD COLUMN IF NOT EXISTS birthday_body TEXT;
     `);
+
+    // donation_campaigns (must come before payments which FK references it)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS donation_campaigns (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        goal_amount DECIMAL(10,2),
+        currency VARCHAR(10) DEFAULT 'GHS',
+        image_url TEXT,
+        start_date DATE,
+        end_date DATE,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    // dues_config — annual dues settings
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS dues_config (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        year INTEGER NOT NULL UNIQUE,
+        amount DECIMAL(10,2) NOT NULL,
+        currency VARCHAR(10) DEFAULT 'GHS',
+        description TEXT,
+        due_date DATE,
+        is_active BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    // payments — financial transactions (dues + donations)
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS payments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('dues','donation')),
+        amount DECIMAL(10,2) NOT NULL,
+        currency VARCHAR(10) DEFAULT 'GHS',
+        payment_method VARCHAR(50),
+        reference VARCHAR(255) UNIQUE,
+        paystack_id VARCHAR(255),
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','success','failed')),
+        dues_year INTEGER,
+        campaign_id UUID REFERENCES donation_campaigns(id) ON DELETE SET NULL,
+        notes TEXT,
+        verified_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    // non_financial_contributions
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS non_financial_contributions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+        type VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        estimated_value DECIMAL(10,2),
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','verified','rejected')),
+        verified_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        notes TEXT,
+        verified_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+
+    // job_postings
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS job_postings (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        posted_by UUID REFERENCES users(id) ON DELETE SET NULL,
+        title VARCHAR(255) NOT NULL,
+        company VARCHAR(255),
+        location VARCHAR(255),
+        type VARCHAR(50) DEFAULT 'Full-Time',
+        description TEXT NOT NULL,
+        requirements TEXT,
+        application_url VARCHAR(500),
+        application_email VARCHAR(255),
+        salary_range VARCHAR(100),
+        industry VARCHAR(100),
+        is_active BOOLEAN DEFAULT TRUE,
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected')),
+        expires_at DATE,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    // Migration: add status column to existing installations
+    await client.query(`ALTER TABLE job_postings ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending','approved','rejected'))`);
+    // Approve any jobs that existed before the approval system was added
+    await client.query(`UPDATE job_postings SET status = 'approved' WHERE status IS NULL`);
 
     // portal_settings
     await client.query(`

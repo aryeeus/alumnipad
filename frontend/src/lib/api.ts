@@ -145,6 +145,7 @@ export const adminApi = {
     }),
   deleteAd: (id: string) => request<{ message: string }>(`/admin/ads/${id}`, { method: 'DELETE' }),
   getBirthdays: () => request<unknown[]>('/admin/birthdays'),
+  alumniLookup: (q: string) => request<Record<string, unknown>[]>('/admin/alumni-lookup', { params: { q } }),
 
   getSmtp: () => request<Record<string, unknown>>('/admin/smtp'),
   updateSmtp: (data: Record<string, unknown>) =>
@@ -154,6 +155,10 @@ export const adminApi = {
   getBirthdayTemplate: () => request<{ subject: string; body: string }>('/admin/birthday-template'),
   updateBirthdayTemplate: (data: { subject: string; body: string }) =>
     request<{ message: string }>('/admin/birthday-template', { method: 'PUT', body: JSON.stringify(data) }),
+
+  getAdmins: () => request<Record<string, unknown>[]>('/admin/admins'),
+  promote: (userId: string) => request<{ message: string }>(`/admin/promote/${userId}`, { method: 'POST' }),
+  demote: (userId: string) => request<{ message: string }>(`/admin/demote/${userId}`, { method: 'POST' }),
 };
 
 // Advertisements
@@ -174,14 +179,78 @@ export const activitiesApi = {
   list: () => request<unknown[]>('/activities'),
 };
 
+// Payments / Dues / Giving
+export const paymentsApi = {
+  duesStatus: () => request<import('@/types').DuesStatus>('/payments/dues-status'),
+  history: () => request<import('@/types').Payment[]>('/payments/history'),
+  initialize: (data: { type: string; amount: number; currency?: string; dues_year?: number; campaign_id?: string }) =>
+    request<{ reference: string; authorization_url: string; access_code: string }>('/payments/initialize', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  verify: (reference: string) =>
+    request<{ message: string }>('/payments/verify', { method: 'POST', body: JSON.stringify({ reference }) }),
+  cancelPayment: (reference: string) =>
+    request<{ message: string }>(`/payments/cancel/${reference}`, { method: 'DELETE' }),
+  myContributions: () => request<import('@/types').NonFinancialContribution[]>('/payments/contributions'),
+  submitContribution: (data: { type: string; description: string; estimated_value?: number }) =>
+    request<import('@/types').NonFinancialContribution>('/payments/contributions', { method: 'POST', body: JSON.stringify(data) }),
+
+  // Admin
+  adminAll: (params?: { type?: string; status?: string; page?: number }) =>
+    request<{ payments: import('@/types').Payment[]; total: number; page: number; pages: number }>('/payments/admin/all', { params }),
+  adminRecord: (data: Record<string, unknown>) =>
+    request<import('@/types').Payment>('/payments/admin/record', { method: 'POST', body: JSON.stringify(data) }),
+  getDuesConfig: () => request<import('@/types').DuesConfig[]>('/payments/admin/dues-config'),
+  setDuesConfig: (data: Record<string, unknown>) =>
+    request<import('@/types').DuesConfig>('/payments/admin/dues-config', { method: 'POST', body: JSON.stringify(data) }),
+  getDuesReport: (year?: number) =>
+    request<Record<string, unknown>[]>('/payments/admin/dues-report', { params: { year } }),
+  getAdminContributions: (status?: string) =>
+    request<import('@/types').NonFinancialContribution[]>('/payments/admin/contributions', { params: { status } }),
+  updateContribution: (id: string, data: { status: string; notes?: string }) =>
+    request<import('@/types').NonFinancialContribution>(`/payments/admin/contributions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  getFinanceSummary: () => request<import('@/types').FinanceSummary>('/payments/admin/summary'),
+};
+
+// Donation Campaigns
+export const campaignsApi = {
+  list: () => request<import('@/types').DonationCampaign[]>('/campaigns'),
+  listAll: () => request<import('@/types').DonationCampaign[]>('/campaigns/all'),
+  get: (id: string) => request<import('@/types').DonationCampaign>(`/campaigns/${id}`),
+  create: (formData: FormData) =>
+    request<import('@/types').DonationCampaign>('/campaigns', { method: 'POST', body: formData }),
+  update: (id: string, formData: FormData) =>
+    request<import('@/types').DonationCampaign>(`/campaigns/${id}`, { method: 'PUT', body: formData }),
+  delete: (id: string) => request<{ message: string }>(`/campaigns/${id}`, { method: 'DELETE' }),
+};
+
+// Jobs
+export const jobsApi = {
+  list: (params?: { industry?: string; type?: string; search?: string; page?: number }) =>
+    request<{ jobs: import('@/types').JobPosting[]; total: number; page: number; pages: number }>('/jobs', { params }),
+  mine: () => request<import('@/types').JobPosting[]>('/jobs/mine'),
+  create: (data: Record<string, unknown>) =>
+    request<import('@/types').JobPosting>('/jobs', { method: 'POST', body: JSON.stringify(data) }),
+  delete: (id: string) => request<{ message: string }>(`/jobs/${id}`, { method: 'DELETE' }),
+  // Admin
+  adminAll: (params?: { status?: string; page?: number }) =>
+    request<{ jobs: import('@/types').JobPosting[]; total: number; page: number; pages: number }>('/jobs/admin/all', { params }),
+  approve: (id: string) => request<import('@/types').JobPosting>(`/jobs/admin/${id}/approve`, { method: 'POST' }),
+  reject: (id: string) => request<import('@/types').JobPosting>(`/jobs/admin/${id}/reject`, { method: 'POST' }),
+};
+
 // Public (no auth)
 export const publicApi = {
   stats: () => request<{
     total_alumni: number;
-    unique_cities: number;
+    unique_countries: number;
     total_activities: number;
     total_mentors: number;
     total_businesses: number;
+    total_ads: number;
+    total_jobs: number;
+    total_campaigns: number;
   }>('/public/stats'),
   settings: () => request<{ school_name: string; logo_url: string | null }>('/public/settings'),
 };

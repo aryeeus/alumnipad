@@ -47,6 +47,7 @@ export interface AlumniProfile {
   years_of_experience?: number;
   certifications?: string;
   expertise?: string;
+  alumni_code?: string;
   is_mentor_available?: boolean;
   is_speaker_available?: boolean;
   has_board_service?: boolean;
@@ -158,6 +159,114 @@ export interface Advertisement {
   profile_photo_url?: string;
   email?: string;
   poster_email?: string;
+}
+
+export interface DuesConfig {
+  id: string;
+  year: number;
+  amount: number;
+  currency: string;
+  description?: string;
+  due_date?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface DuesStatus {
+  year: number;
+  config: DuesConfig | null;
+  paid: boolean;
+  payment?: Payment;
+}
+
+export interface Payment {
+  id: string;
+  user_id?: string;
+  type: 'dues' | 'donation';
+  amount: number;
+  currency: string;
+  payment_method?: string;
+  reference: string;
+  paystack_id?: string;
+  status: 'pending' | 'success' | 'failed';
+  dues_year?: number;
+  campaign_id?: string;
+  campaign_title?: string;
+  notes?: string;
+  verified_at?: string;
+  created_at: string;
+  // joined
+  first_name?: string;
+  last_name?: string;
+  graduation_year?: number;
+  email?: string;
+}
+
+export interface DonationCampaign {
+  id: string;
+  title: string;
+  description?: string;
+  goal_amount?: number;
+  currency: string;
+  image_url?: string;
+  start_date?: string;
+  end_date?: string;
+  is_active: boolean;
+  created_by?: string;
+  created_at: string;
+  updated_at: string;
+  raised_amount: number;
+  donor_count: number;
+}
+
+export interface NonFinancialContribution {
+  id: string;
+  user_id?: string;
+  type: string;
+  description: string;
+  estimated_value?: number;
+  status: 'pending' | 'verified' | 'rejected';
+  verified_by?: string;
+  notes?: string;
+  verified_at?: string;
+  created_at: string;
+  // joined
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  verifier_first_name?: string;
+  verifier_last_name?: string;
+}
+
+export interface JobPosting {
+  id: string;
+  posted_by?: string;
+  title: string;
+  company?: string;
+  location?: string;
+  type: string;
+  description: string;
+  requirements?: string;
+  application_url?: string;
+  application_email?: string;
+  salary_range?: string;
+  industry?: string;
+  is_active: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  expires_at?: string;
+  created_at: string;
+  updated_at: string;
+  // joined
+  poster_first_name?: string;
+  poster_last_name?: string;
+  poster_photo?: string;
+}
+
+export interface FinanceSummary {
+  total_collected: number;
+  dues_paid_this_year: number;
+  total_donations: number;
+  pending_contributions: number;
 }
 
 export interface PaginatedResponse<T> {

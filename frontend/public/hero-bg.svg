@@ -122,34 +122,34 @@
 
   <!-- ══════════ NETWORK NODES ══════════ -->
   <g filter="url(#glow)">
-    <!-- Gold nodes -->
-    <circle cx="80" cy="100" r="5" fill="#d4a017" opacity="0.75"/>
-    <circle cx="418" cy="142" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="600" cy="82" r="4" fill="#d4a017" opacity="0.65"/>
-    <circle cx="778" cy="152" r="5.5" fill="#d4a017" opacity="0.75"/>
-    <circle cx="1140" cy="132" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="1338" cy="92" r="4" fill="#d4a017" opacity="0.65"/>
-    <circle cx="148" cy="272" r="4" fill="#d4a017" opacity="0.65"/>
-    <circle cx="320" cy="352" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="680" cy="322" r="5.5" fill="#d4a017" opacity="0.75"/>
-    <circle cx="860" cy="242" r="4.5" fill="#d4a017" opacity="0.7"/>
-    <circle cx="1040" cy="302" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="1400" cy="292" r="5" fill="#d4a017" opacity="0.7"/>
-    <circle cx="80" cy="480" r="4.5" fill="#d4a017" opacity="0.7"/>
-    <circle cx="260" cy="442" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="640" cy="462" r="5.5" fill="#d4a017" opacity="0.75"/>
-    <circle cx="820" cy="512" r="4.5" fill="#d4a017" opacity="0.7"/>
-    <circle cx="1010" cy="462" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="1380" cy="472" r="5" fill="#d4a017" opacity="0.7"/>
-    <circle cx="170" cy="662" r="5.5" fill="#d4a017" opacity="0.75"/>
-    <circle cx="580" cy="652" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="780" cy="702" r="4.5" fill="#d4a017" opacity="0.7"/>
-    <circle cx="980" cy="662" r="5.5" fill="#d4a017" opacity="0.75"/>
-    <circle cx="1380" cy="672" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="300" cy="802" r="5.5" fill="#d4a017" opacity="0.75"/>
-    <circle cx="560" cy="832" r="4.5" fill="#d4a017" opacity="0.7"/>
-    <circle cx="820" cy="812" r="6.5" fill="#d4a017" opacity="0.85"/>
-    <circle cx="1340" cy="802" r="5.5" fill="#d4a017" opacity="0.75"/>
+    <!-- Red nodes -->
+    <circle cx="80" cy="100" r="5" fill="#dc2626" opacity="0.75"/>
+    <circle cx="418" cy="142" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="600" cy="82" r="4" fill="#dc2626" opacity="0.65"/>
+    <circle cx="778" cy="152" r="5.5" fill="#dc2626" opacity="0.75"/>
+    <circle cx="1140" cy="132" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="1338" cy="92" r="4" fill="#dc2626" opacity="0.65"/>
+    <circle cx="148" cy="272" r="4" fill="#dc2626" opacity="0.65"/>
+    <circle cx="320" cy="352" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="680" cy="322" r="5.5" fill="#dc2626" opacity="0.75"/>
+    <circle cx="860" cy="242" r="4.5" fill="#dc2626" opacity="0.7"/>
+    <circle cx="1040" cy="302" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="1400" cy="292" r="5" fill="#dc2626" opacity="0.7"/>
+    <circle cx="80" cy="480" r="4.5" fill="#dc2626" opacity="0.7"/>
+    <circle cx="260" cy="442" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="640" cy="462" r="5.5" fill="#dc2626" opacity="0.75"/>
+    <circle cx="820" cy="512" r="4.5" fill="#dc2626" opacity="0.7"/>
+    <circle cx="1010" cy="462" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="1380" cy="472" r="5" fill="#dc2626" opacity="0.7"/>
+    <circle cx="170" cy="662" r="5.5" fill="#dc2626" opacity="0.75"/>
+    <circle cx="580" cy="652" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="780" cy="702" r="4.5" fill="#dc2626" opacity="0.7"/>
+    <circle cx="980" cy="662" r="5.5" fill="#dc2626" opacity="0.75"/>
+    <circle cx="1380" cy="672" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="300" cy="802" r="5.5" fill="#dc2626" opacity="0.75"/>
+    <circle cx="560" cy="832" r="4.5" fill="#dc2626" opacity="0.7"/>
+    <circle cx="820" cy="812" r="6.5" fill="#dc2626" opacity="0.85"/>
+    <circle cx="1340" cy="802" r="5.5" fill="#dc2626" opacity="0.75"/>
     <!-- Blue nodes -->
     <circle cx="240" cy="62" r="3.5" fill="#60a5fa" opacity="0.65"/>
     <circle cx="958" cy="72" r="3.5" fill="#60a5fa" opacity="0.65"/>
@@ -164,32 +164,32 @@
   </g>
 
   <!-- ══════════ GRADUATION CAP SILHOUETTE (top-right) ══════════ -->
-  <g opacity="0.055" transform="translate(990,80) scale(2.4)">
+  <g opacity="0.10" transform="translate(990,80) scale(2.4)">
     <!-- Board -->
-    <polygon points="110,0 225,52 110,104 0,52" fill="#d4a017"/>
+    <polygon points="110,0 225,52 110,104 0,52" fill="#c8cdd6"/>
     <!-- Body -->
-    <path d="M 40,67 L 180,67 L 190,162 L 30,162 Z" fill="#d4a017"/>
+    <path d="M 40,67 L 180,67 L 190,162 L 30,162 Z" fill="#c8cdd6"/>
     <!-- Button -->
-    <circle cx="110" cy="0" r="11" fill="#e8b820"/>
+    <circle cx="110" cy="0" r="11" fill="#dde1e8"/>
     <!-- Tassel rope -->
-    <line x1="225" y1="52" x2="225" y2="168" stroke="#d4a017" stroke-width="5"/>
+    <line x1="225" y1="52" x2="225" y2="168" stroke="#c8cdd6" stroke-width="5"/>
     <!-- Tassel block -->
-    <rect x="210" y="168" width="30" height="18" fill="#d4a017"/>
+    <rect x="210" y="168" width="30" height="18" fill="#c8cdd6"/>
     <!-- Tassel fringe -->
-    <line x1="213" y1="186" x2="212" y2="210" stroke="#d4a017" stroke-width="2.5"/>
-    <line x1="219" y1="186" x2="218" y2="214" stroke="#d4a017" stroke-width="2.5"/>
-    <line x1="225" y1="186" x2="225" y2="212" stroke="#d4a017" stroke-width="2.5"/>
-    <line x1="231" y1="186" x2="231" y2="214" stroke="#d4a017" stroke-width="2.5"/>
-    <line x1="237" y1="186" x2="237" y2="210" stroke="#d4a017" stroke-width="2.5"/>
+    <line x1="213" y1="186" x2="212" y2="210" stroke="#c8cdd6" stroke-width="2.5"/>
+    <line x1="219" y1="186" x2="218" y2="214" stroke="#c8cdd6" stroke-width="2.5"/>
+    <line x1="225" y1="186" x2="225" y2="212" stroke="#c8cdd6" stroke-width="2.5"/>
+    <line x1="231" y1="186" x2="231" y2="214" stroke="#c8cdd6" stroke-width="2.5"/>
+    <line x1="237" y1="186" x2="237" y2="210" stroke="#c8cdd6" stroke-width="2.5"/>
   </g>
 
   <!-- Second faint cap bottom-left -->
-  <g opacity="0.035" transform="translate(20,580) scale(1.5)">
-    <polygon points="100,0 200,46 100,92 0,46" fill="#d4a017"/>
-    <path d="M 36,59 L 164,59 L 172,140 L 28,140 Z" fill="#d4a017"/>
-    <circle cx="100" cy="0" r="9" fill="#e8b820"/>
-    <line x1="200" y1="46" x2="200" y2="144" stroke="#d4a017" stroke-width="4"/>
-    <rect x="186" y="144" width="28" height="15" fill="#d4a017"/>
+  <g opacity="0.07" transform="translate(20,580) scale(1.5)">
+    <polygon points="100,0 200,46 100,92 0,46" fill="#c8cdd6"/>
+    <path d="M 36,59 L 164,59 L 172,140 L 28,140 Z" fill="#c8cdd6"/>
+    <circle cx="100" cy="0" r="9" fill="#dde1e8"/>
+    <line x1="200" y1="46" x2="200" y2="144" stroke="#c8cdd6" stroke-width="4"/>
+    <rect x="186" y="144" width="28" height="15" fill="#c8cdd6"/>
   </g>
 
   <!-- ══════════ GEOMETRIC / ADINKRA ACCENTS ══════════ -->
@@ -211,28 +211,28 @@
   </g>
 
   <!-- Adinkra diamond-cross motif – bottom right -->
-  <g opacity="0.08" stroke="#c9960f" fill="none" stroke-width="1.5" transform="translate(1310,808)">
+  <g opacity="0.18" stroke="#c8cdd6" fill="none" stroke-width="1.5" transform="translate(1310,808)">
     <polygon points="0,-48 48,0 0,48 -48,0"/>
     <polygon points="0,-32 32,0 0,32 -32,0"/>
     <polygon points="0,-16 16,0 0,16 -16,0"/>
     <line x1="-70" y1="0" x2="70" y2="0"/>
     <line x1="0" y1="-70" x2="0" y2="70"/>
-    <circle cx="0" cy="0" r="6" fill="#c9960f" opacity="0.25"/>
+    <circle cx="0" cy="0" r="6" fill="#c8cdd6" opacity="0.4"/>
   </g>
 
   <!-- Adinkra star-cross motif – top left -->
-  <g opacity="0.07" stroke="#c9960f" fill="none" stroke-width="1.5" transform="translate(120,820)">
+  <g opacity="0.15" stroke="#c8cdd6" fill="none" stroke-width="1.5" transform="translate(120,820)">
     <polygon points="0,-52 52,0 0,52 -52,0"/>
     <line x1="-72" y1="0" x2="72" y2="0"/>
     <line x1="0" y1="-72" x2="0" y2="72"/>
     <line x1="-36" y1="-36" x2="36" y2="36"/>
     <line x1="36" y1="-36" x2="-36" y2="36"/>
-    <circle cx="0" cy="0" r="18" fill="#c9960f" opacity="0.15"/>
-    <circle cx="0" cy="0" r="6" fill="#c9960f" opacity="0.3"/>
+    <circle cx="0" cy="0" r="18" fill="#c8cdd6" opacity="0.20"/>
+    <circle cx="0" cy="0" r="6" fill="#c8cdd6" opacity="0.45"/>
   </g>
 
   <!-- ══════════ SPARKLE STARS ══════════ -->
-  <g fill="#e8b820" opacity="0.38">
+  <g fill="#c8cdd6" opacity="0.50">
     <polygon points="698,38 700,32 702,38 708,40 702,42 700,48 698,42 692,40" />
     <polygon points="1295,402 1297,396 1299,402 1305,404 1299,406 1297,412 1295,406 1289,404"/>
     <polygon points="198,554 200,548 202,554 208,556 202,558 200,564 198,558 192,556"/>

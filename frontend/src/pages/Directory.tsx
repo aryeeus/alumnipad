@@ -29,14 +29,16 @@ export default function Directory() {
     <div>
       {/* Page header */}
       <div className="page-header">
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="flex items-center gap-3 mb-1">
+        <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
             <Users className="h-6 w-6 text-yellow-400" />
-            <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Alumni Directory</h1>
+            <div>
+              <h1 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Alumni Directory</h1>
+              <p className="text-blue-200 text-sm">
+                {data ? `${data.total} verified alumni` : 'Search and connect with fellow graduates'}
+              </p>
+            </div>
           </div>
-          <p className="text-blue-200 text-sm">
-            {data ? `${data.total} verified alumni` : 'Search and connect with fellow graduates'}
-          </p>
         </div>
       </div>
 

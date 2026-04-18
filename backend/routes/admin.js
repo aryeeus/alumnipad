@@ -43,7 +43,7 @@ router.post('/approve/:userId', authenticate, requireAdmin, async (req, res) => 
   try {
     // Fetch user + profile before approving so we have email & name
     const infoResult = await pool.query(
-      `SELECT u.email, ap.first_name, ap.last_name
+      `SELECT u.email, ap.first_name, ap.last_name, ap.alumni_code
        FROM users u
        LEFT JOIN alumni_profiles ap ON ap.user_id = u.id
        WHERE u.id = $1`,
@@ -51,12 +51,23 @@ router.post('/approve/:userId', authenticate, requireAdmin, async (req, res) => 
     );
     if (!infoResult.rows[0]) return res.status(404).json({ error: 'User not found' });
 
-    const { email, first_name, last_name } = infoResult.rows[0];
+    const { email, first_name, last_name, alumni_code } = infoResult.rows[0];
 
     await pool.query(
       'UPDATE users SET is_approved = true, updated_at = NOW() WHERE id = $1',
       [req.params.userId]
     );
+
+    // Generate a unique alumni code if not already assigned
+    if (!alumni_code) {
+      const countRes = await pool.query(`SELECT COUNT(*) FROM alumni_profiles WHERE alumni_code IS NOT NULL`);
+      const seq = parseInt(countRes.rows[0].count) + 1;
+      const code = `AP-${String(seq).padStart(5, '0')}`;
+      await pool.query(
+        `UPDATE alumni_profiles SET alumni_code = $1 WHERE user_id = $2`,
+        [code, req.params.userId]
+      );
+    }
 
     // Send approval email (fire-and-forget — don't block the response)
     getMailer().then((mailerObj) => {
@@ -451,6 +462,88 @@ router.delete('/ads/:id', authenticate, requireAdmin, async (req, res) => {
     res.json({ message: 'Ad deleted' });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete ad' });
+  }
+});
+
+// GET /api/admin/alumni-lookup?q=AP-00001 or name search
+router.get('/alumni-lookup', authenticate, requireAdmin, async (req, res) => {
+  const { q } = req.query;
+  if (!q || String(q).trim().length < 2) return res.status(400).json({ error: 'Query too short' });
+  const term = String(q).trim();
+
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.email, ap.first_name, ap.last_name, ap.graduation_year, ap.alumni_code, ap.profile_photo_url
+       FROM users u
+       JOIN alumni_profiles ap ON ap.user_id = u.id
+       WHERE u.is_approved = true AND u.is_admin = false
+         AND (
+           ap.alumni_code ILIKE $1
+           OR CONCAT(ap.first_name, ' ', ap.last_name) ILIKE $1
+           OR u.email ILIKE $1
+         )
+       ORDER BY ap.alumni_code NULLS LAST, ap.last_name
+       LIMIT 10`,
+      [`%${term}%`]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Alumni lookup error:', err);
+    res.status(500).json({ error: 'Lookup failed' });
+  }
+});
+
+// ── Admin account management ─────────────────────────────────────
+
+// GET /api/admin/admins — list all admin accounts
+router.get('/admins', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT u.id, u.email, u.created_at,
+              ap.first_name, ap.last_name, ap.profile_photo_url, ap.alumni_code, ap.graduation_year,
+              (u.id = $1) AS is_self
+       FROM users u
+       LEFT JOIN alumni_profiles ap ON ap.user_id = u.id
+       WHERE u.is_admin = true
+       ORDER BY u.created_at ASC`,
+      [req.user.id]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('List admins error:', err);
+    res.status(500).json({ error: 'Failed to fetch admins' });
+  }
+});
+
+// POST /api/admin/promote/:userId — grant admin access to an approved alumni
+router.post('/promote/:userId', authenticate, requireAdmin, async (req, res) => {
+  if (req.params.userId === req.user.id) return res.status(400).json({ error: 'Cannot change your own admin status' });
+  try {
+    const result = await pool.query(
+      `UPDATE users SET is_admin = true WHERE id = $1 AND is_approved = true RETURNING id, email`,
+      [req.params.userId]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'User not found or not yet approved' });
+    res.json({ message: 'User promoted to admin', email: result.rows[0].email });
+  } catch (err) {
+    console.error('Promote error:', err);
+    res.status(500).json({ error: 'Failed to promote user' });
+  }
+});
+
+// POST /api/admin/demote/:userId — revoke admin access
+router.post('/demote/:userId', authenticate, requireAdmin, async (req, res) => {
+  if (req.params.userId === req.user.id) return res.status(400).json({ error: 'Cannot remove your own admin access' });
+  try {
+    const result = await pool.query(
+      `UPDATE users SET is_admin = false WHERE id = $1 RETURNING id, email`,
+      [req.params.userId]
+    );
+    if (!result.rows[0]) return res.status(404).json({ error: 'User not found' });
+    res.json({ message: 'Admin access revoked', email: result.rows[0].email });
+  } catch (err) {
+    console.error('Demote error:', err);
+    res.status(500).json({ error: 'Failed to revoke admin access' });
   }
 });
 

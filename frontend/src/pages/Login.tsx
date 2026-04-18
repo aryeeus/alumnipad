@@ -1,16 +1,24 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, Eye, EyeOff, LogIn } from 'lucide-react';
-import { saveAuth } from '@/lib/auth';
-import { authApi } from '@/lib/api';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { GraduationCap, Eye, EyeOff, LogIn } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { saveAuth, getPhotoUrl } from "@/lib/auth";
+import { authApi, publicApi } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const { data: settings } = useQuery({
+    queryKey: ["public-settings"],
+    queryFn: publicApi.settings,
+    staleTime: 300_000,
+  });
+  const logoUrl = settings?.logo_url ? getPhotoUrl(settings.logo_url) : null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,10 +26,10 @@ export default function Login() {
     try {
       const data = await authApi.login(email, password);
       saveAuth(data.token, data.user);
-      toast.success('Welcome back!');
-      navigate(data.user.is_admin ? '/admin' : '/directory');
+      toast.success("Welcome back!");
+      navigate(data.user.is_admin ? "/admin" : "/directory");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Login failed');
+      toast.error(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -31,22 +39,31 @@ export default function Login() {
     <div
       className="min-h-[calc(100vh-64px)] flex items-center justify-center py-12 px-4"
       style={{
-        backgroundImage: 'url(/hero-bg.svg)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundColor: '#0f1e3d',
+        backgroundImage: "url(/hero-bg.svg)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundColor: "#0f1e3d",
       }}
     >
       <div className="w-full max-w-md animate-fade-up">
         {/* Brand mark */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 mb-3">
-            <GraduationCap className="h-8 w-8 text-yellow-400" />
+            {logoUrl ? (
+              <img src={logoUrl} alt="School logo" className="h-12 w-12 object-contain" />
+            ) : (
+              <GraduationCap className="h-8 w-8 text-yellow-400" />
+            )}
           </div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'var(--font-display)' }}>
+          <h1
+            className="text-2xl font-bold text-white"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
             Welcome Back
           </h1>
-          <p className="text-blue-200 text-sm mt-1">Sign in to your AlumniPad account</p>
+          <p className="text-blue-200 text-sm mt-1">
+            Sign in to your Ɔdadeɛ account
+          </p>
         </div>
 
         {/* Card */}
@@ -67,13 +84,16 @@ export default function Login() {
             <div>
               <div className="flex justify-between items-center mb-1.5">
                 <label className="label mb-0">Password</label>
-                <Link to="/forgot-password" className="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                >
                   Forgot password?
                 </Link>
               </div>
               <div className="relative">
                 <input
-                  type={showPw ? 'text' : 'password'}
+                  type={showPw ? "text" : "password"}
                   className="input pr-10"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -85,20 +105,37 @@ export default function Login() {
                   onClick={() => setShowPw(!showPw)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPw ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full py-3 mt-2">
-              {loading ? 'Signing in…' : <><LogIn className="h-4 w-4" /> Sign In</>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-3 mt-2"
+            >
+              {loading ? (
+                "Signing in…"
+              ) : (
+                <>
+                  <LogIn className="h-4 w-4" /> Sign In
+                </>
+              )}
             </button>
           </form>
 
           <div className="mt-6 pt-5 border-t border-gray-100 text-center">
             <p className="text-sm text-gray-500">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-blue-600 hover:underline font-semibold">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="text-blue-600 hover:underline font-semibold"
+              >
                 Register here
               </Link>
             </p>

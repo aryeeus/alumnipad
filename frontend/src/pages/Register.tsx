@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  ChevronRight, ChevronLeft, Check, GraduationCap, User, BookOpen,
+  ChevronRight, ChevronLeft, Check, User, BookOpen,
   Phone, Briefcase, Building2, Heart
 } from 'lucide-react';
 import { authApi } from '@/lib/api';
 import { toast } from 'sonner';
 import { type RegistrationFormData } from '@/types';
 import { cn } from '@/lib/utils';
+import SchoolLogo from '@/components/SchoolLogo';
 
 const STEPS = [
   { label: 'Personal',      icon: User },
@@ -91,8 +92,8 @@ export default function Register() {
       {/* Top banner */}
       <div className="page-header py-8">
         <div className="max-w-2xl mx-auto px-4 text-center relative z-10">
-          <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-white/10 border border-white/20 mb-3">
-            <GraduationCap className="h-6 w-6 text-yellow-400" />
+          <div className="mb-3 flex justify-center">
+            <SchoolLogo size={12} variant="dark" />
           </div>
           <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>Alumni Registration</h1>
           <p className="text-blue-200 text-sm mt-1">Complete all sections to join the alumni network</p>

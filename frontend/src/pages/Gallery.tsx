@@ -192,7 +192,7 @@ export default function Gallery() {
           <div className="card w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-lg font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>Upload Photo</h2>
-              <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+              <button onClick={() => setShowUpload(false)} className="btn-close">
                 <X className="h-5 w-5" />
               </button>
             </div>

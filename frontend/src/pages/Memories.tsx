@@ -41,7 +41,7 @@ export default function Memories() {
     <div>
       {/* Page header */}
       <div className="page-header">
-        <div className="max-w-3xl mx-auto px-4 relative z-10 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <BookOpen className="h-6 w-6 text-yellow-400" />
             <div>
@@ -49,8 +49,8 @@ export default function Memories() {
               <p className="text-blue-200 text-sm">Stories and moments from alumni</p>
             </div>
           </div>
-          <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2">
-            <Plus className="h-4 w-4" /> Share
+          <button onClick={() => setShowCreate(true)} className="btn-primary flex items-center gap-2 self-start sm:self-auto">
+            <Plus className="h-4 w-4" /> Share Memory
           </button>
         </div>
       </div>
@@ -64,7 +64,7 @@ export default function Memories() {
               <div className="card w-full max-w-lg p-6">
                 <div className="flex justify-between items-center mb-5">
                   <h2 className="text-lg font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>Share a Memory</h2>
-                  <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
+                  <button onClick={() => setShowCreate(false)} className="btn-close">
                     <X className="h-5 w-5" />
                   </button>
                 </div>
@@ -134,7 +134,7 @@ export default function Memories() {
                   memory={m}
                   onDelete={(id) => {
                     queryClient.setQueryData(['memories', page], (old: typeof data) =>
-                      old ? { ...old, memories: old.memories.filter((mem: Memory) => mem.id !== id) } : old
+                      old ? { ...old, memories: (old.memories as Memory[]).filter((mem) => mem.id !== id) } : old
                     );
                   }}
                 />

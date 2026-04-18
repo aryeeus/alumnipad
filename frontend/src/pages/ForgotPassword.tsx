@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap, Mail, ArrowLeft, Copy, Check, ExternalLink } from 'lucide-react';
+import { Mail, ArrowLeft, Copy, Check, ExternalLink } from 'lucide-react';
 import { authApi } from '@/lib/api';
+import SchoolLogo from '@/components/SchoolLogo';
 import { toast } from 'sonner';
 
 export default function ForgotPassword() {
@@ -40,8 +41,8 @@ export default function ForgotPassword() {
     >
       <div className="w-full max-w-md animate-fade-up">
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 mb-3">
-            <GraduationCap className="h-8 w-8 text-yellow-400" />
+          <div className="mb-3 flex justify-center">
+            <SchoolLogo size={16} variant="dark" />
           </div>
           <h1 className="text-2xl font-bold text-white" style={{ fontFamily: 'var(--font-display)' }}>
             {submitted ? 'Check Your Email' : 'Forgot Password'}

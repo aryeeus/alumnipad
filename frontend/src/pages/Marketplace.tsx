@@ -108,7 +108,7 @@ export default function Marketplace() {
     <div>
       {/* Page header */}
       <div className="page-header">
-        <div className="max-w-7xl mx-auto px-4 relative z-10 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <ShoppingBag className="h-6 w-6 text-yellow-400" />
             <div>
@@ -116,7 +116,7 @@ export default function Marketplace() {
               <p className="text-blue-200 text-sm">Products & services from our alumni community</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 self-start sm:self-auto">
             {user && (
               <>
                 <button
@@ -254,7 +254,7 @@ export default function Marketplace() {
           <div className="card w-full max-w-xl p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-5">
               <h2 className="text-lg font-bold text-gray-900" style={{ fontFamily: 'var(--font-display)' }}>Post an Advertisement</h2>
-              <button onClick={() => setShowCreate(false)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => setShowCreate(false)} className="btn-close">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -299,7 +299,7 @@ export default function Marketplace() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label">Price</label>
-                  <input className="input" placeholder="e.g. GHS 500 or Free" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
+                  <input className="input" placeholder="e.g. ₵500 or Free" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} />
                 </div>
                 <div>
                   <label className="label">Category</label>

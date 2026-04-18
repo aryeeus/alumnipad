@@ -196,6 +196,16 @@ export default function AlumniProfile() {
             </div>
           )}
 
+          {/* ── Alumni code ── */}
+          {p.alumni_code && (
+            <div className="mt-3 flex justify-center">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+                style={{ background: 'rgba(30,64,175,0.08)', color: '#1e40af', fontFamily: 'monospace', letterSpacing: '0.04em' }}>
+                <GraduationCap className="h-3 w-3" /> {p.alumni_code}
+              </div>
+            </div>
+          )}
+
           {/* ── Horizontal badge strip ── */}
           {(p.graduation_year || p.house || p.program || p.is_mentor_available || p.is_speaker_available) && (
             <div className="mt-4 pt-4 border-t border-gray-100 flex flex-wrap gap-2 justify-center">

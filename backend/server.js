@@ -99,6 +99,30 @@ function scheduleDailyBirthdays() {
 
 scheduleDailyBirthdays();
 
+// ── Expired job cleanup ─────────────────────────────────────────
+async function deleteExpiredJobs() {
+  try {
+    const result = await pool.query(
+      `DELETE FROM job_postings WHERE expires_at IS NOT NULL AND expires_at < CURRENT_DATE`
+    );
+    if (result.rowCount > 0) console.log(`Deleted ${result.rowCount} expired job posting(s).`);
+  } catch (err) {
+    console.error('Job cleanup error:', err);
+  }
+}
+
+// Run immediately on startup, then every 24 hours at midnight
+deleteExpiredJobs();
+(function scheduleJobCleanup() {
+  const now = new Date();
+  const nextMidnight = new Date(now);
+  nextMidnight.setHours(24, 0, 0, 0);
+  setTimeout(() => {
+    deleteExpiredJobs();
+    setInterval(deleteExpiredJobs, 24 * 60 * 60 * 1000);
+  }, nextMidnight - now);
+})();
+
 const app = express();
 
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:8080', credentials: true }));
@@ -116,26 +140,54 @@ app.use('/api/memories', require('./routes/memories'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/activities', require('./routes/activities'));
 app.use('/api/ads', require('./routes/ads'));
+app.use('/api/payments', require('./routes/payments'));
+app.use('/api/campaigns', require('./routes/campaigns'));
+app.use('/api/jobs', require('./routes/jobs'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 
 // Public stats — used on landing page (no auth required)
 app.get('/api/public/stats', async (req, res) => {
+  const safeCount = async (sql) => {
+    try {
+      const r = await pool.query(sql);
+      return parseInt(r.rows[0].count) || 0;
+    } catch {
+      return 0;
+    }
+  };
+
   try {
-    const [alumni, cities, activities, mentors, businesses] = await Promise.all([
-      pool.query("SELECT COUNT(*) FROM users WHERE is_approved = true AND is_admin = false"),
-      pool.query("SELECT COUNT(DISTINCT city) FROM alumni_profiles ap JOIN users u ON u.id = ap.user_id WHERE u.is_approved = true AND city IS NOT NULL AND city <> ''"),
-      pool.query("SELECT COUNT(*) FROM activities"),
-      pool.query("SELECT COUNT(*) FROM alumni_profiles ap JOIN users u ON u.id = ap.user_id WHERE u.is_approved = true AND ap.is_mentor_available = true"),
-      pool.query("SELECT COUNT(*) FROM alumni_profiles ap JOIN users u ON u.id = ap.user_id WHERE u.is_approved = true AND ap.has_business = true"),
+    const [
+      total_alumni,
+      unique_countries,
+      total_activities,
+      total_mentors,
+      total_businesses,
+      total_ads,
+      total_jobs,
+      total_campaigns,
+    ] = await Promise.all([
+      safeCount("SELECT COUNT(*) FROM users WHERE is_approved = true AND is_admin = false"),
+      safeCount("SELECT COUNT(DISTINCT COALESCE(NULLIF(country,''), city)) FROM alumni_profiles ap JOIN users u ON u.id = ap.user_id WHERE u.is_approved = true AND COALESCE(NULLIF(country,''), city) IS NOT NULL"),
+      safeCount("SELECT COUNT(*) FROM activities"),
+      safeCount("SELECT COUNT(*) FROM alumni_profiles ap JOIN users u ON u.id = ap.user_id WHERE u.is_approved = true AND ap.is_mentor_available = true"),
+      safeCount("SELECT COUNT(*) FROM alumni_profiles ap JOIN users u ON u.id = ap.user_id WHERE u.is_approved = true AND ap.has_business = true"),
+      safeCount("SELECT COUNT(*) FROM advertisements WHERE status = 'approved'"),
+      safeCount("SELECT COUNT(*) FROM job_postings WHERE is_active = true AND (expires_at IS NULL OR expires_at >= CURRENT_DATE)"),
+      safeCount("SELECT COUNT(*) FROM donation_campaigns WHERE is_active = true"),
     ]);
+
     res.json({
-      total_alumni: parseInt(alumni.rows[0].count),
-      unique_cities: parseInt(cities.rows[0].count),
-      total_activities: parseInt(activities.rows[0].count),
-      total_mentors: parseInt(mentors.rows[0].count),
-      total_businesses: parseInt(businesses.rows[0].count),
+      total_alumni,
+      unique_countries,
+      total_activities,
+      total_mentors,
+      total_businesses,
+      total_ads,
+      total_jobs,
+      total_campaigns,
     });
   } catch (err) {
     console.error('Public stats error:', err);
